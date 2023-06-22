@@ -51,6 +51,8 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
+    // print data to console for debugging:
+              console.log("data",data);
     const container = d3.select(element).select('.image-grid');
     renderImageGrid(data, container);
   },
