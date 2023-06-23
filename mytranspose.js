@@ -91,7 +91,7 @@
   }
 
                   // If the measure is the image URL, add the image element
-                  if (measure.name === 'image_url') {
+                  if (measure.name === 'image_url_measure') {
                   var img = document.createElement('img');
                   img.src = rw['image_url']; // Assuming the image URL is stored in the 'image_url' field
                   img.width = 100; // Set the desired width of the image
