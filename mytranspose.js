@@ -80,18 +80,24 @@
                       measure: measure.label_short
                   };
 
-                  // Add image URL to the row
-                  rw.IMAGE_URL = measure.IMAGE_URL; // Replace `imageUrl` with the appropriate property from your data
-
                   // for each dimension, set the measure value
                   for (j = 1; j < clmns.length; j++) {
-                      returned_value = data[clmns[j].datanum][measure.name];
-                      if (returned_value.rendered != null) {
-                          rw[clmns[j].field] = returned_value.rendered;
-                      } else {
-                          rw[clmns[j].field] = returned_value.value;
-                      }              
-                  }  
+                  returned_value = data[clmns[j].datanum][measure.name];
+                  if (returned_value.rendered != null) {
+                  rw[clmns[j].field] = returned_value.rendered;
+                  } else {
+                  rw[clmns[j].field] = returned_value.value;
+                  }
+
+                  // If the dimension is the image dimension, add the image element
+                if (clmns[j].field === 'image_dimension') {
+                  var img = document.createElement('img');
+      img.src = returned_value.value; // Assuming the image URL is stored in the `value` property
+      img.width = 100; // Set the desired width of the image
+      img.height = 100; // Set the desired height of the image
+      rw[clmns[j].field] = img;
+    }
+  }
 
                   // add the row to the data
                   rws.push(rw);
