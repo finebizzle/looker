@@ -90,12 +90,12 @@
                   }
 
                   // If the dimension is the image dimension, add the image element
-                if (clmns[j].field === 'image_dimension') {
+                  if (clmns[j].field === 'image_url') {
                   var img = document.createElement('img');
-      img.src = returned_value.value; // Assuming the image URL is stored in the `value` property
-      img.width = 100; // Set the desired width of the image
-      img.height = 100; // Set the desired height of the image
-      rw[clmns[j].field] = img;
+                  img.src = returned_value.value; // Assuming the image URL is stored in the `value` property
+                  img.width = 100; // Set the desired width of the image
+                  img.height = 100; // Set the desired height of the image
+                  rw[clmns[j].field] = img;
     }
   }
 
