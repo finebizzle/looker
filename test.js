@@ -1,79 +1,78 @@
-looker.plugins.visualizations.add({
-  // Id and Label are legacy properties that no longer have any function besides documenting
-  // what the visualization used to have. The properties are now set via the manifest
-  // form within the admin/visualizations page of Looker
-  id: "hello_world",
-  label: "Hello World",
-  options: {
-    font_size: {
-      type: "string",
-      label: "Font Size",
-      values: [
-        {"Large": "large"},
-        {"Small": "small"}
-      ],
-      display: "radio",
-      default: "large"
+function renderImageGrid(data, container) {
+  // Define the dimensions and properties of the image grid
+  const imageWidth = 200;
+  const imageHeight = 200;
+  const imagesPerRow = 4;
+  const spacing = 10;
+
+  // Calculate the total number of rows based on the data length and images per row
+  const numRows = Math.ceil(data.length / imagesPerRow);
+
+  // Create a container for the image grid
+  const gridContainer = container.append('div')
+    .style('display', 'flex')
+    .style('flex-wrap', 'wrap');
+
+  // Add image elements to the grid container
+  const images = gridContainer.selectAll('.image')
+    .data(data)
+    .enter()
+    .append('div')
+    .style('width', `${imageWidth}px`)
+    .style('height', `${imageHeight}px`)
+    .style('margin', `${spacing}px`)
+    .style('background-color', '#eee')
+    .style('background-size', 'cover')
+    .style('background-position', 'center')
+    .style('background-image', d => `url(${d.image_url})`);
+
+  // Add image names and cost at the bottom of each cell
+  images.append('div')
+    .style('position', 'absolute')
+    .style('bottom', '0')
+    .style('left', '0')
+    .style('right', '0')
+    .style('padding', '5px')
+    .style('background-color', 'rgba(0, 0, 0, 0.7)')
+    .style('color', '#fff')
+    .style('text-align', 'center')
+    .text(d => `Name: ${d.name}, Cost: ${d.cost}`);
+
+  // Adjust the grid container height based on the number of rows
+  const gridHeight = numRows * (imageHeight + 2 * spacing);
+  gridContainer.style('height', `${gridHeight}px`);
+}
+
+const vis = {
+  id: 'image-grid',
+  label: 'Image Grid',
+  options: {},
+  create(element, config) {
+    element.innerHTML = '<div class="image-grid"></div>';
+    return {};
+  },
+  updateAsync(data, element, config, queryResponse, details, done) {
+    try {
+      const formattedData = [];
+
+      if (Array.isArray(data)) {
+        data.forEach(function(d) {
+          formattedData.push({
+            image_url: d[queryResponse.fields.dimensions[0].name].value || "",
+            name: d[queryResponse.fields.dimensions[1].name].value || "",
+            cost: d[queryResponse.fields.dimensions[2].name].value || ""
+          });
+        });
+      }
+
+      const container = d3.select(element).select('.image-grid');
+      renderImageGrid(formattedData, container);
+      done();
+    } catch (error) {
+      console.error(error);
+      done();
     }
   },
-  // Set up the initial state of the visualization
-  create: function(element, config) {
+};
 
-    // Insert a <style> tag with some styles we'll use later.
-    element.innerHTML = `
-      <style>
-        .hello-world-vis {
-          /* Vertical centering */
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          text-align: center;
-        }
-        .hello-world-text-large {
-          font-size: 72px;
-        }
-        .hello-world-text-small {
-          font-size: 18px;
-        }
-      </style>
-    `;
-
-    // Create a container element to let us center the text.
-    var container = element.appendChild(document.createElement("div"));
-    container.className = "hello-world-vis";
-
-    // Create an element to contain the text.
-    this._textElement = container.appendChild(document.createElement("div"));
-
-  },
-  // Render in response to the data or settings changing
-  updateAsync: function(data, element, config, queryResponse, details, done) {
-
-    // Clear any errors from previous updates
-    this.clearErrors();
-
-    // Throw some errors and exit if the shape of the data isn't what this chart needs
-    if (queryResponse.fields.dimensions.length == 0) {
-      this.addError({title: "No Dimensions", message: "This chart requires dimensions."});
-      return;
-    }
-
-    // Grab the first cell of the data
-    var firstRow = data[0];
-    var firstCell = firstRow[queryResponse.fields.dimensions[0].name];
-
-    // Insert the data into the page
-    this._textElement.innerHTML = LookerCharts.Utils.htmlForCell(firstCell);
-
-    // Set the size to the user-selected size
-    if (config.font_size == "small") {
-      this._textElement.className = "hello-world-text-small";
-    } else {
-      this._textElement.className = "hello-world-text-large";
-    }
-
-    // We are done rendering! Let Looker know.
-    done()
-  }
-});
+looker.plugins.visualizations.add(vis);
