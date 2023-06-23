@@ -82,22 +82,23 @@
 
                   // for each dimension, set the measure value
                   for (j = 1; j < clmns.length; j++) {
-                  returned_value = data[clmns[j].datanum][measure.name];
-                  if (returned_value.rendered != null) {
-                  rw[clmns[j].field] = returned_value.rendered;
-                  } else {
-                  rw[clmns[j].field] = returned_value.value;
-                  }
-
-                  // If the dimension is the image dimension, add the image element
-                  if (clmns[j].field === 'image_url') {
-                  var img = document.createElement('img');
-                  img.src = returned_value.value; // Assuming the image URL is stored in the `value` property
-                  img.width = 100; // Set the desired width of the image
-                  img.height = 100; // Set the desired height of the image
-                  rw[clmns[j].field] = img;
+    returned_value = data[clmns[j].datanum][measure.name];
+    if (returned_value.rendered != null) {
+      rw[clmns[j].field] = returned_value.rendered;
+    } else {
+      rw[clmns[j].field] = returned_value.value;
     }
   }
+
+                  // If the measure is the image URL, add the image element
+                  if (measure.name === 'image_url') {
+                  var img = document.createElement('img');
+                  img.src = rw['image_url']; // Assuming the image URL is stored in the 'image_url' field
+                  img.width = 100; // Set the desired width of the image
+                  img.height = 100; // Set the desired height of the image
+                  rw['image'] = img; 
+                }
+                    
 
                   // add the row to the data
                   rws.push(rw);
