@@ -1,8 +1,8 @@
 function renderImageGrid(data, container) {
   // Define the dimensions and properties of the image grid
-  const imageWidth = 200;
-  const imageHeight = 200;
-  const imagesPerRow = 4;
+  const imageWidth = 100;
+  const imageHeight = 100;
+  const imagesPerRow = 10;
   const spacing = 10;
 
   // Calculate the total number of rows based on the data length and images per row
@@ -24,7 +24,7 @@ function renderImageGrid(data, container) {
     .style('background-color', '#eee')
     .style('background-size', 'cover')
     .style('background-position', 'center')
-    .style('background-image', d => `url(${d['content_partner.image_url']['value']})`);
+    .style('background-image', d => `url(${d.image_url})`);
 
   // Add image names as labels at the bottom of each cell
   images.append('div')
@@ -35,7 +35,7 @@ function renderImageGrid(data, container) {
     .style('background-color', 'rgba(0, 0, 0, 0.7)')
     .style('color', '#fff')
     .style('text-align', 'center')
-    .text(d => d['content_partner.master_id']['value']);
+    .text(d => d.master_id);
 
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
@@ -51,9 +51,16 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
+
+    // Assign dimensions to properties
+    const updatedData = data.map(d => ({
+      image_url: d[Object.keys(d)[0]].value,
+      master_id: d[Object.keys(d)[1]].value,
+    }));
+
     // Render the image grid
     const container = d3.select(element).select('.image-grid');
-    renderImageGrid(data, container);
+    renderImageGrid(updatedData, container);
   },
 };
 
