@@ -26,9 +26,8 @@ function renderImageGrid(data, container) {
     .style('background-position', 'center')
     .style('background-image', d => `url(${d.image_url})`);
 
-  // Add image names and cost at the bottom of each cell
+  // Add image names as labels at the bottom of each cell
   images.append('div')
-    .style('position', 'absolute')
     .style('bottom', '0')
     .style('left', '0')
     .style('right', '0')
@@ -36,11 +35,13 @@ function renderImageGrid(data, container) {
     .style('background-color', 'rgba(0, 0, 0, 0.7)')
     .style('color', '#fff')
     .style('text-align', 'center')
-    .text(d => `Name: ${d.name}, Cost: ${d.cost}`);
+    .text(d => d.master_id);
 
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
   gridContainer.style('height', `${gridHeight}px`);
+
+  
 }
 
 const vis = {
@@ -51,27 +52,21 @@ const vis = {
     element.innerHTML = '<div class="image-grid"></div>';
     return {};
   },
-  updateAsync(data, element, config, queryResponse, details, done) {
-    try {
-      const formattedData = [];
+  update(data, element, config, context) {
+    const dataContainer = document.createElement('div');
+    dataContainer.style.marginTop = '10px';
 
-      if (Array.isArray(data)) {
-        data.forEach(function(d) {
-          formattedData.push({
-            image_url: d[queryResponse.fields.dimensions[0].name].value || "",
-            name: d[queryResponse.fields.dimensions[1].name].value || "",
-            cost: d[queryResponse.fields.dimensions[2].name].value || ""
-          });
-        });
-      }
+    const dataTitle = document.createElement('h3');
+    dataTitle.textContent = 'Data:';
+    dataContainer.appendChild(dataTitle);
 
-      const container = d3.select(element).select('.image-grid');
-      renderImageGrid(formattedData, container);
-      done();
-    } catch (error) {
-      console.error(error);
-      done();
-    }
+    const dataContent = document.createElement('pre');
+    dataContent.textContent = JSON.stringify(data, null, 2);
+    dataContainer.appendChild(dataContent);
+
+    element.appendChild(dataContainer);
+
+    
   },
 };
 
