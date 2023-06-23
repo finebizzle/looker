@@ -24,7 +24,7 @@ function renderImageGrid(data, container) {
     .style('background-color', '#eee')
     .style('background-size', 'cover')
     .style('background-position', 'center')
-    .style('background-image', d => `url(${d.image_url})`);
+    .style('background-image', d => `url(${d['content_partner.image_url']['value']})`);
 
   // Add image names as labels at the bottom of each cell
   images.append('div')
@@ -35,7 +35,7 @@ function renderImageGrid(data, container) {
     .style('background-color', 'rgba(0, 0, 0, 0.7)')
     .style('color', '#fff')
     .style('text-align', 'center')
-    .text(d => d.master_id);
+    .text(d => d['content_partner.master_id']['value']);
 
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
@@ -51,8 +51,7 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
-    // print data to console for debugging:
-              console.log("data",data);
+    // Render the image grid
     const container = d3.select(element).select('.image-grid');
     renderImageGrid(data, container);
   },
