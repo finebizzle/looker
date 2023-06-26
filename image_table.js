@@ -54,7 +54,7 @@ function renderImageTable(data, container) {
         .style('padding', '5px')
         .append('img')
         .style('width', '200px')
-        .style('height', 'auto')
+        .style('height', '200px')
         .attr('src', imageUrl)
         .attr('alt', rankProductId);
 
