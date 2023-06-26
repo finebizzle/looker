@@ -53,8 +53,8 @@ function renderImageTable(data, container) {
       row.append('td')
         .style('padding', '5px')
         .append('img')
-        .style('width', '200px')
-        .style('height', '200px')
+        .style('width', '90px')
+        .style('height', '90px')
         .attr('src', imageUrl)
         .attr('alt', rankProductId);
 
