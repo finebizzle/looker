@@ -12,11 +12,14 @@ function renderImageTable(data, container, config) {
   // Create the table header row
   const headerRow = tableContainer.append('tr');
 
+   // Get the custom labels from the options
+  const statementMonthLabel = config.statementMonthLabel || 'Statement Month';
+  
   
 
   // Add the statement month header
   headerRow.append('th')
-    .text('Statement Month')
+    .text(statementMonthLabel)
     .style('background-color', config.headerColor)
     .style('color', config.headerFontColor)
     .style('font-size', config.fontSize)
@@ -47,20 +50,26 @@ function renderImageTable(data, container, config) {
     // Add the statement month cell
     row.append('td')
       .text(month)
+      .style('background-color', config.headerColor)
       .style('color', config.headerFontColor)
       .style('font-size', config.fontSize)
       .style('font-family', config.fontFamily)
+      .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
     revenueRow.append('td')
       .text("revenue")
+      .style('background-color', config.rowColor1)
       .style('color', config.headerFontColor)
       .style('font-size', config.fontSize)
       .style('font-family', config.fontFamily)
+      .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
     assetRow.append('td')
+      .style('background-color', config.rowColor2)
       .style('color', config.headerFontColor)
       .style('font-size', config.fontSize)
       .style('font-family', config.fontFamily)
+      .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
 
     // Add the image cells for the current statement month
@@ -161,7 +170,12 @@ const vis = {
       type: 'string',
       label: 'Cell Padding',
       default: '5px',
-    }
+    },
+    statementMonthLabel: {
+      type: 'string',
+      label: 'Statement Month Label',
+      default: 'Month',
+    },
   },
   create(element, config) {
     element.innerHTML = '<div class="image-table"></div><div class="error-message" style="color: red; font-weight: bold;"></div>';
