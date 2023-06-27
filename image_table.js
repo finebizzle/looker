@@ -74,7 +74,53 @@ function renderImageTable(data, container) {
 const vis = {
   id: 'image-table',
   label: 'Image Table',
-  options: {},
+  options: {
+    fontFamily: {
+      type: 'string',
+      label: 'Font Family',
+      default: 'Arial',
+    },
+    fontSize: {
+      type: 'string',
+      label: 'Font Size',
+      default: '12px',
+    },
+    fontColor: {
+      type: 'string',
+      label: 'Font Color',
+      default: '#000',
+    },
+    headerColor: {
+      type: 'string',
+      label: 'Header Color',
+      default: '#ccc',
+    },
+    headerFontColor: {
+      type: 'string',
+      label: 'Header Font Color',
+      default: '#000',
+    },
+    headerPadding: {
+      type: 'string',
+      label: 'Header Padding',
+      default: '5px',
+    },
+    cellPadding: {
+      type: 'string',
+      label: 'Cell Padding',
+      default: '5px',
+    },
+    rowColor1: {
+      type: 'string',
+      label: 'Row Color 1',
+      default: '#f2f2f2',
+    },
+    rowColor2: {
+      type: 'string',
+      label: 'Row Color 2',
+      default: '#fff',
+    },
+  },
   create(element, config) {
     element.innerHTML = '<div class="image-table"></div><div class="error-message" style="color: red; font-weight: bold;"></div>';
     return {};
