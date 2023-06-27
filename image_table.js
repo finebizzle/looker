@@ -19,11 +19,16 @@ function renderImageTable(data, container, config) {
     .text('Statement Month')
     .style('background-color', config.headerColor)
     .style('color', config.headerFontColor)
+    .style('fontSize', config.fontSize)
+    .style('fontFamily', config.fontFamily)
     .style('padding', config.headerPadding)
 
   // Add the image headers
   uniqueRankProductIds.forEach(rankProductId => {
     headerRow.append('th')
+      .style('background-color', config.headerColor)
+      .style('color', config.headerFontColor)
+      .style('padding', config.headerPadding)
       .text(rankProductId);
   });
 
@@ -43,8 +48,10 @@ function renderImageTable(data, container, config) {
       .style('border-right', '1px solid #ccc');
     revenueRow.append('td')
       .text("revenue")
+      .style('color', config.headerFontColor)
       .style('border-right', '1px solid #ccc');
     assetRow.append('td')
+      .style('color', config.headerFontColor)
       .style('border-right', '1px solid #ccc');
 
     // Add the image cells for the current statement month
@@ -58,15 +65,21 @@ function renderImageTable(data, container, config) {
       row.append('td')
         .style('padding', '5px')
         .append('img')
-        .style('width', '90px')
+        .style('width', config.width)
         .style('height', '90px')
         .attr('src', imageUrl)
         .attr('alt', rankProductId);
 
       revenueRow.append('td')
+        .style('background-color', config.rowColor1)
+        .style('color', config.fontColor)
+        .style('padding', config.headerPadding)
          .text(revenue);
 
       assetRow.append('td')
+        .style('background-color', config.rowColor2)
+        .style('color', config.fontColor)
+        .style('padding', config.headerPadding)
          .text(id);
     });
   });
@@ -118,13 +131,28 @@ const vis = {
     rowColor1: {
       type: 'string',
       label: 'Row Color 1',
-      default: '#f2f2f2',
+      default: '#FF5733',
     },
     rowColor2: {
       type: 'string',
       label: 'Row Color 2',
       default: '#fff',
     },
+    width: {
+      type: 'string',
+      label: 'Image Width',
+      default: '90px',
+    },
+    height: {
+      type: 'string',
+      label: 'Image Height',
+      default: '90px',
+    },
+    cellPadding: {
+      type: 'string',
+      label: 'Cell Padding',
+      default: '5px',
+    }
   },
   create(element, config) {
     element.innerHTML = '<div class="image-table"></div><div class="error-message" style="color: red; font-weight: bold;"></div>';
