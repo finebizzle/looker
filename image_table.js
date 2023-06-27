@@ -1,4 +1,4 @@
-function renderImageTable(data, container) {
+function renderImageTable(data, container, config) {
   // Create a container for the image table
   const tableContainer = container.append('table')
     .style('border-collapse', 'collapse');
@@ -12,9 +12,14 @@ function renderImageTable(data, container) {
   // Create the table header row
   const headerRow = tableContainer.append('tr');
 
+  
+
   // Add the statement month header
   headerRow.append('th')
-    .text('Statement Month');
+    .text('Statement Month')
+    .style('background-color', config.headerColor)
+    .style('color', config.headerFontColor)
+    .style('padding', config.headerPadding)
 
   // Add the image headers
   uniqueRankProductIds.forEach(rankProductId => {
@@ -137,7 +142,7 @@ const vis = {
       tableContainer.innerHTML = '';
 
       // Render the image table
-      renderImageTable(data, d3.select(tableContainer));
+      renderImageTable(data, d3.select(tableContainer), config);
     } catch (error) {
       console.error('Error occurred during update:', error);
       errorMessageElement.textContent = 'An error occurred during update.';
