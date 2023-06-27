@@ -42,11 +42,20 @@ function renderImageTable(data, container, config) {
     // Filter the data for the current statement month
     const monthData = data.filter(d => d['content_partner.statement_month'].value === month);
     // Create a table row for the current statement month
+    const assetRow = tableContainer.append('tr');
     const row = tableContainer.append('tr')
       .style('border-top', '1px solid #ccc');
     const revenueRow = tableContainer.append('tr');
-    const assetRow = tableContainer.append('tr');
     // Add the statement month cell
+    assetRow.append('td')
+      .text(measureLabel2)
+      .style('background-color', config.rowColor2)
+      .style('color', config.headerFontColor)
+      .style('font-size', config.fontSize)
+      .style('font-family', config.fontFamily)
+      .style('padding', config.headerPadding)
+      .style('border-right', '1px solid #ccc');
+    
     row.append('td')
       .text(month)
       .style('background-color', config.headerColor)
@@ -63,22 +72,22 @@ function renderImageTable(data, container, config) {
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
-    assetRow.append('td')
-      .text(measureLabel2)
-      .style('background-color', config.rowColor2)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
+    
 
     // Add the image cells for the current statement month
     uniqueRankProductIds.forEach(rankProductId => {
       const imageData = monthData.find(d => d['content_partner.rank_product_id'].value === rankProductId);
       const imageUrl = imageData ? imageData['content_partner.image_url'].value : '';
       const revenue = imageData ? formatNumericValue(imageData['content_partner.revenue'].value, config.numericFormat) : '';
-      const id = imageData ? formatNumericValue(imageData['content_partner.master_id'].value, config.numericFormat) : '';
-
+      const id = imageData ? imageData['content_partner.master_id'].value : '';
+      assetRow.append('td')
+        .style('background-color', config.rowColor2)
+        .style('color', config.fontColor)
+        .style('font-size', config.fontSize)
+        .style('font-family', config.fontFamily)
+        .style('padding', config.headerPadding)
+        .text(id);
+      
       row.append('td')
         .style('padding', '5px')
         .append('img')
@@ -95,13 +104,7 @@ function renderImageTable(data, container, config) {
         .style('padding', config.headerPadding)
         .text(revenue);
 
-      assetRow.append('td')
-        .style('background-color', config.rowColor2)
-        .style('color', config.fontColor)
-        .style('font-size', config.fontSize)
-        .style('font-family', config.fontFamily)
-        .style('padding', config.headerPadding)
-        .text(id);
+      
     });
   });
 
