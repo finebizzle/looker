@@ -105,6 +105,12 @@ function renderImageTable(data, container, config) {
   // Adjust the table cell borders
   tableContainer.selectAll('td, th')
     .style('border', '1px solid #ccc');
+
+  // Make the table resizable with mouse
+  const resizableTable = document.createElement('div');
+  resizableTable.classList.add('resizable-table');
+  resizableTable.appendChild(tableContainer.node());
+  container.node().appendChild(resizableTable);
 }
 
 const vis = {
