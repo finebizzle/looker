@@ -19,8 +19,8 @@ function renderImageTable(data, container, config) {
     .text('Statement Month')
     .style('background-color', config.headerColor)
     .style('color', config.headerFontColor)
-    .style('fontSize', config.fontSize)
-    .style('fontFamily', config.fontFamily)
+    .style('font-size', config.fontSize)
+    .style('font-family', config.fontFamily)
     .style('padding', config.headerPadding)
 
   // Add the image headers
@@ -28,6 +28,8 @@ function renderImageTable(data, container, config) {
     headerRow.append('th')
       .style('background-color', config.headerColor)
       .style('color', config.headerFontColor)
+      .style('font-size', config.fontSize)
+      .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
       .text(rankProductId);
   });
@@ -45,13 +47,20 @@ function renderImageTable(data, container, config) {
     // Add the statement month cell
     row.append('td')
       .text(month)
+      .style('color', config.headerFontColor)
+      .style('font-size', config.fontSize)
+      .style('font-family', config.fontFamily)
       .style('border-right', '1px solid #ccc');
     revenueRow.append('td')
       .text("revenue")
       .style('color', config.headerFontColor)
+      .style('font-size', config.fontSize)
+      .style('font-family', config.fontFamily)
       .style('border-right', '1px solid #ccc');
     assetRow.append('td')
       .style('color', config.headerFontColor)
+      .style('font-size', config.fontSize)
+      .style('font-family', config.fontFamily)
       .style('border-right', '1px solid #ccc');
 
     // Add the image cells for the current statement month
@@ -131,7 +140,7 @@ const vis = {
     rowColor1: {
       type: 'string',
       label: 'Row Color 1',
-      default: '#FF5733',
+      default: '#fff',
     },
     rowColor2: {
       type: 'string',
