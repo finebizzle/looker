@@ -12,10 +12,10 @@ function renderImageTable(data, container, config) {
   // Create the table header row
   const headerRow = tableContainer.append('tr');
 
-   // Get the custom labels from the options
+  // Get the custom labels from the options
   const statementMonthLabel = config.statementMonthLabel || 'Statement Month';
-  
-  
+  const measureLabel1 = config.MeasureLabel || 'Revenue';
+  const measureLabel2 = config.MeasureLabel2 || '';
 
   // Add the statement month header
   headerRow.append('th')
@@ -24,7 +24,7 @@ function renderImageTable(data, container, config) {
     .style('color', config.headerFontColor)
     .style('font-size', config.fontSize)
     .style('font-family', config.fontFamily)
-    .style('padding', config.headerPadding)
+    .style('padding', config.headerPadding);
 
   // Add the image headers
   uniqueRankProductIds.forEach(rankProductId => {
@@ -37,7 +37,6 @@ function renderImageTable(data, container, config) {
       .text(rankProductId);
   });
 
-  
   // Iterate over each statement month
   statementMonths.forEach(month => {
     // Filter the data for the current statement month
@@ -57,7 +56,7 @@ function renderImageTable(data, container, config) {
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
     revenueRow.append('td')
-      .text("revenue")
+      .text(measureLabel1)
       .style('background-color', config.rowColor1)
       .style('color', config.headerFontColor)
       .style('font-size', config.fontSize)
@@ -65,6 +64,7 @@ function renderImageTable(data, container, config) {
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
     assetRow.append('td')
+      .text(measureLabel2)
       .style('background-color', config.rowColor2)
       .style('color', config.headerFontColor)
       .style('font-size', config.fontSize)
@@ -76,9 +76,8 @@ function renderImageTable(data, container, config) {
     uniqueRankProductIds.forEach(rankProductId => {
       const imageData = monthData.find(d => d['content_partner.rank_product_id'].value === rankProductId);
       const imageUrl = imageData ? imageData['content_partner.image_url'].value : '';
-      const revenue = imageData ? imageData['content_partner.revenue'].value : '';
-      const id = imageData ? imageData['content_partner.master_id'].value : '';
-
+      const revenue = imageData ? formatNumericValue(imageData['content_partner.revenue'].value, config.numericFormat) : '';
+      const id = imageData ? formatNumericValue(imageData['content_partner.master_id'].value, config.numericFormat) : '';
 
       row.append('td')
         .style('padding', '5px')
@@ -91,26 +90,35 @@ function renderImageTable(data, container, config) {
       revenueRow.append('td')
         .style('background-color', config.rowColor1)
         .style('color', config.fontColor)
+        .style('font-size', config.fontSize)
+        .style('font-family', config.fontFamily)
         .style('padding', config.headerPadding)
-         .text(revenue);
+        .text(revenue);
 
       assetRow.append('td')
         .style('background-color', config.rowColor2)
         .style('color', config.fontColor)
+        .style('font-size', config.fontSize)
+        .style('font-family', config.fontFamily)
         .style('padding', config.headerPadding)
-         .text(id);
+        .text(id);
     });
   });
 
   // Adjust the table cell borders
   tableContainer.selectAll('td, th')
     .style('border', '1px solid #ccc');
+}
 
-  // Make the table resizable with mouse
-  const resizableTable = document.createElement('div');
-  resizableTable.classList.add('resizable-table');
-  resizableTable.appendChild(tableContainer.node());
-  container.node().appendChild(resizableTable);
+function formatNumericValue(value, format) {
+  // Check if a format is specified
+  if (format && format.length > 0) {
+    // Format the value using the specified format
+    return d3.format(format)(value);
+  }
+
+  // No format specified, return the value as is
+  return value;
 }
 
 const vis = {
@@ -147,11 +155,6 @@ const vis = {
       label: 'Header Padding',
       default: '5px',
     },
-    cellPadding: {
-      type: 'string',
-      label: 'Cell Padding',
-      default: '5px',
-    },
     rowColor1: {
       type: 'string',
       label: 'Row Color 1',
@@ -179,8 +182,23 @@ const vis = {
     },
     statementMonthLabel: {
       type: 'string',
-      label: 'Statement Month Label',
-      default: 'Month',
+      label: 'Dimension',
+      default: '',
+    },
+    MeasureLabel: {
+      type: 'string',
+      label: 'Measure 1',
+      default: '',
+    },
+    MeasureLabel2: {
+      type: 'string',
+      label: 'Measure 2',
+      default: '',
+    },
+    numericFormat: {
+      type: 'string',
+      label: 'Numeric Format',
+      default: '',
     },
   },
   create(element, config) {
