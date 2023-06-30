@@ -95,13 +95,13 @@ function renderImageTable(data, container, config) {
         .text(id);
 
       const mediaCell = row.append('td').style('padding', '5px');
-      if (mediaType === 'image') {
+      if (mediaType !== 'VIDEO') {
         mediaCell.append('img')
           .style('width', config.imageWidth)
           .style('height', '90px')
           .attr('src', imageUrl)
           .attr('alt', rankProductId);
-      } else if (mediaType === 'video') {
+      } else if (mediaType === 'VIDEO') {
         mediaCell.append('video')
           .style('width', '100px')
           .style('height', config.imageWidth)
