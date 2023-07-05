@@ -100,7 +100,7 @@ function renderImageTable(data, container, config) {
           .text(id);
 
         const mediaCell = row.append('td').style('padding', '5px').style('border-right', '1px solid #ccc');
-        if (mediaType === 'image') {
+        if (mediaType !== 'VIDEO') {
           const imageContainer = mediaCell.append('div')
             .style('width', config.imageWidth)
             .style('height', '90px')
@@ -116,7 +116,7 @@ function renderImageTable(data, container, config) {
             imageContainer.style('background-color', 'green');
             image.style('border', '3px solid green');
           }
-        } else if (mediaType === 'video') {
+        } else if (mediaType === 'VIDEO') {
           
           const imageContainer = mediaCell.append('div')
             .style('width', config.imageWidth)
