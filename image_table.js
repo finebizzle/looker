@@ -13,6 +13,13 @@ function renderImageTable(data, container, config) {
 
   const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[5]].value)));
 
+  // Extract the unique master_id values and count their occurrences
+  const masterIdCounts = {};
+  data.forEach(d => {
+    const masterId = d[Object.keys(d)[0]].value;
+    masterIdCounts[masterId] = (masterIdCounts[masterId] || 0) + 1;
+  });
+
   // Create the table header row
   const headerRow = tableContainer.append('tr');
 
@@ -81,32 +88,53 @@ function renderImageTable(data, container, config) {
 
     // Add the image cells for the current statement month
     uniqueRankProductIds.forEach(rankProductId => {
-      const imageData = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
-      const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
-      const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
-      const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
-      const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
-      assetRow.append('td')
-        .style('background-color', config.rowColor2)
-        .style('color', config.fontColor)
-        .style('font-size', config.fontSize)
-        .style('font-family', config.fontFamily)
-        .style('padding', config.headerPadding)
-        .text(id);
+      const imageCells = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
+      imageCells.forEach((imageData, index) => {
+        const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
+        const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
+        const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
+        const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
+        const isDuplicateMasterId = masterIdCounts[id] > 1;
+        assetRow.append('td')
+          .style('background-color', config.rowColor2)
+          .style('color', config.fontColor)
+          .style('font-size', config.fontSize)
+          .style('font-family', config.fontFamily)
+          .style('padding', config.headerPadding)
+          .text(id);
 
       const mediaCell = row.append('td').style('padding', '5px');
       if (mediaType !== 'VIDEO') {
-        mediaCell.append('img')
-          .style('width', config.imageWidth)
-          .style('height', '90px')
-          .attr('src', imageUrl)
-          .attr('alt', rankProductId);
+        const imageContainer = mediaCell.append('div')
+            .style('width', config.imageWidth)
+            .style('height', '90px')
+            .style('position', 'relative');
+          
+          const image = imageContainer.append('img')
+            .style('width', '100%')
+            .style('height', '100%')
+            .attr('src', imageUrl)
+            .attr('alt', rankProductId);
+
+          if (isDuplicateMasterId) {
+            imageContainer.style('background-color', 'green');
+            image.style('border', '3px solid green');
+          }
       } else if (mediaType === 'VIDEO') {
-        mediaCell.append('video')
-          .style('width', '100px')
-          .style('height', config.imageWidth)
-          .attr('src', imageUrl)
-          .attr('alt', rankProductId);
+        const imageContainer = mediaCell.append('div')
+            .style('width', config.imageWidth)
+            .style('height', '90px')
+            .style('position', 'relative');
+          
+          const image = imageContainer.append('video')
+            .style('width', '100%')
+            .style('height', '100%')
+            .attr('src', imageUrl)
+            .attr('alt', rankProductId);
+
+          if (isDuplicateMasterId) {
+            image.style('border', '3px solid green');
+          }
       }
 
       revenueRow.append('td')
@@ -116,8 +144,7 @@ function renderImageTable(data, container, config) {
         .style('font-family', config.fontFamily)
         .style('padding', config.headerPadding)
         .text(revenue);
-
-     
+     });        
     });
   });
 
