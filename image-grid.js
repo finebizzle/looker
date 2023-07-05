@@ -1,7 +1,7 @@
 function renderImageGrid(data, container) {
   // Define the dimensions and properties of the image grid
-  const imageWidth = 100;
-  const imageHeight = 100;
+  const imageWidth = 90;
+  const imageHeight = 90;
   const imagesPerRow = 10;
   const spacing = 10;
 
@@ -24,7 +24,7 @@ function renderImageGrid(data, container) {
     .style('background-color', '#eee')
     .style('background-size', 'cover')
     .style('background-position', 'center')
-    .style('background-image', d => `url(${d.image_url})`);
+    .style('background-image', d => `url(${d[Object.keys(d)[2]].value})`);
 
   // Add image names as labels at the bottom of each cell
   images.append('div')
@@ -35,12 +35,14 @@ function renderImageGrid(data, container) {
     .style('background-color', 'rgba(0, 0, 0, 0.7)')
     .style('color', '#fff')
     .style('text-align', 'center')
-    .text(d => d.master_id);
+    .text(d => '$' + d[Object.keys(d)[3]].value.toFixed(2));
 
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
   gridContainer.style('height', `${gridHeight}px`);
 }
+
+
 
 const vis = {
   id: 'image-grid',
@@ -51,16 +53,25 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
-
-    // Assign dimensions to properties
-    const updatedData = data.map(d => ({
-      image_url: d[Object.keys(d)[0]].value,
-      master_id: d[Object.keys(d)[1]].value,
-    }));
-
     // Render the image grid
     const container = d3.select(element).select('.image-grid');
-    renderImageGrid(updatedData, container);
+    const errorMessageElement = element.querySelector('.error-message');
+    renderImageGrid(data, container);
+
+    try {
+      // Clear any previous error messages
+      errorMessageElement.textContent = '';
+
+      // Clear the table content
+      tableContainer.innerHTML = '';
+      
+
+      // Render the image table
+      renderImageTable(data, d3.select(tableContainer), config, queryResponse);
+    } catch (error) {
+      console.error('Error occurred during update:', error);
+      errorMessageElement.textContent = 'This chart requires 1 Image dimension and 1 Measure, Move the order of dimension and measure to display chart. ';
+    }
   },
 };
 
