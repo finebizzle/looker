@@ -4,13 +4,9 @@ function renderImageTable(data, container, config) {
     .style('border-collapse', 'collapse');
 
   // Extract the unique statement months from the data objects
-  // const statementMonths = Array.from(new Set(data.map(d => d['content_partner.statement_month'].value)));
-
-    const statementMonths = Array.from(new Set(data.map(d => d[Object.keys(d)[1]].value)));
+  const statementMonths = Array.from(new Set(data.map(d => d[Object.keys(d)[1]].value)));
 
   // Extract the unique rank_product_id values
-  // const uniqueRankProductIds = Array.from(new Set(data.map(d => d['content_partner.rank_product_id'].value)));
-
   const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[5]].value)));
 
   // Extract the unique master_id values and count their occurrences
@@ -51,7 +47,6 @@ function renderImageTable(data, container, config) {
   // Iterate over each statement month
   statementMonths.forEach(month => {
     // Filter the data for the current statement month
-    // const monthData = data.filter(d => d['content_partner.statement_month'].value === month);
     const monthData = data.filter(d => d[Object.keys(d)[1]].value === month);
     // Create a table row for the current statement month
     const assetRow = tableContainer.append('tr');
@@ -67,7 +62,7 @@ function renderImageTable(data, container, config) {
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
-    
+
     row.append('td')
       .text(month)
       .style('background-color', config.headerColor)
@@ -84,28 +79,29 @@ function renderImageTable(data, container, config) {
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
-    
 
-    // Add the image cells for the current statement month
+    // Iterate over each unique rank_product_id and create table cells for the current statement month
     uniqueRankProductIds.forEach(rankProductId => {
-      const imageCells = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
+      const imageCells = monthData.filter(d => d[Object.keys(d)[5]].value === rankProductId);
+
       imageCells.forEach((imageData, index) => {
-        const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
+        const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value : '';
         const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
         const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
         const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
+
         const isDuplicateMasterId = masterIdCounts[id] > 1;
+
         assetRow.append('td')
-          .style('background-color', config.rowColor2)
           .style('color', config.fontColor)
           .style('font-size', config.fontSize)
           .style('font-family', config.fontFamily)
           .style('padding', config.headerPadding)
           .text(id);
 
-      const mediaCell = row.append('td').style('padding', '5px');
-      if (mediaType !== 'VIDEO') {
-        const imageContainer = mediaCell.append('div')
+        const mediaCell = row.append('td').style('padding', '5px').style('border-right', '1px solid #ccc');
+        if (mediaType === 'image') {
+          const imageContainer = mediaCell.append('div')
             .style('width', config.imageWidth)
             .style('height', '90px')
             .style('position', 'relative');
@@ -120,8 +116,9 @@ function renderImageTable(data, container, config) {
             imageContainer.style('background-color', 'green');
             image.style('border', '3px solid green');
           }
-      } else if (mediaType === 'VIDEO') {
-        const imageContainer = mediaCell.append('div')
+        } else if (mediaType === 'video') {
+          
+          const imageContainer = mediaCell.append('div')
             .style('width', config.imageWidth)
             .style('height', '90px')
             .style('position', 'relative');
@@ -135,16 +132,16 @@ function renderImageTable(data, container, config) {
           if (isDuplicateMasterId) {
             image.style('border', '3px solid green');
           }
-      }
+          
+        }
 
-      revenueRow.append('td')
-        .style('background-color', config.rowColor1)
-        .style('color', config.fontColor)
-        .style('font-size', config.fontSize)
-        .style('font-family', config.fontFamily)
-        .style('padding', config.headerPadding)
-        .text(revenue);
-     });        
+        revenueRow.append('td')
+          .style('color', config.fontColor)
+          .style('font-size', config.fontSize)
+          .style('font-family', config.fontFamily)
+          .style('padding', config.headerPadding)
+          .text(revenue);
+      });
     });
   });
 
@@ -152,6 +149,9 @@ function renderImageTable(data, container, config) {
   tableContainer.selectAll('td, th')
     .style('border', '1px solid #ccc');
 }
+
+
+
 
 function formatNumericValue(value, format) {
   // Check if a format is specified
