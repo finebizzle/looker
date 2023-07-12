@@ -2,7 +2,7 @@ function renderImageGrid(data, container) {
   // Define the dimensions and properties of the image grid
   const imageWidth = 90;
   const imageHeight = 90;
-  const imagesPerRow = 10;
+  const imagesPerRow = 20;
   const spacing = 10;
 
   // Calculate the total number of rows based on the data length and images per row
