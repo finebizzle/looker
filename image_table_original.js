@@ -100,13 +100,13 @@ function renderImageTable(data, container, config) {
           .style('width', config.imageWidth)
           .style('height', '90px')
           .attr('src', imageUrl)
-          .attr('alt', id);
+          .attr('alt', 'Pulled');
       } else if (mediaType === 'VIDEO') {
         mediaCell.append('video')
           .style('width', '100px')
           .style('height', config.imageWidth)
           .attr('src', imageUrl)
-          .attr('alt', id);
+          .attr('alt', 'Pulled');
       }
 
       revenueRow.append('td')
