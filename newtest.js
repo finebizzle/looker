@@ -234,7 +234,7 @@ const vis = {
       tableContainer.innerHTML = '';
 
       // Get the revenue measure object based on position (index)
-      const revenueMeasure = config.query_fields.measures[0];
+      const revenueMeasure = config.query_fields.measures[0].label_short;
 
       // Update the config with the revenue label as MeasureLabel
       config.MeasureLabel = revenueMeasure ;
