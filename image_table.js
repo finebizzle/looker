@@ -4,17 +4,14 @@ function renderImageTable(data, container, config) {
     .style('border-collapse', 'collapse');
 
   // Extract the unique statement months from the data objects
-  const statementMonths = Array.from(new Set(data.map(d => d[Object.keys(d)[1]].value)));
+  // const statementMonths = Array.from(new Set(data.map(d => d['content_partner.statement_month'].value)));
+
+    const statementMonths = Array.from(new Set(data.map(d => d[Object.keys(d)[1]].value)));
 
   // Extract the unique rank_product_id values
-  const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[5]].value)));
+  // const uniqueRankProductIds = Array.from(new Set(data.map(d => d['content_partner.rank_product_id'].value)));
 
-  // Extract the unique master_id values and count their occurrences
-  const masterIdCounts = {};
-  data.forEach(d => {
-    const masterId = d[Object.keys(d)[0]].value;
-    masterIdCounts[masterId] = (masterIdCounts[masterId] || 0) + 1;
-  });
+  const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[5]].value)));
 
   // Create the table header row
   const headerRow = tableContainer.append('tr');
@@ -47,6 +44,7 @@ function renderImageTable(data, container, config) {
   // Iterate over each statement month
   statementMonths.forEach(month => {
     // Filter the data for the current statement month
+    // const monthData = data.filter(d => d['content_partner.statement_month'].value === month);
     const monthData = data.filter(d => d[Object.keys(d)[1]].value === month);
     // Create a table row for the current statement month
     const assetRow = tableContainer.append('tr');
@@ -62,7 +60,7 @@ function renderImageTable(data, container, config) {
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
-
+    
     row.append('td')
       .text(month)
       .style('background-color', config.headerColor)
@@ -79,69 +77,47 @@ function renderImageTable(data, container, config) {
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
       .style('border-right', '1px solid #ccc');
+    
 
-    // Iterate over each unique rank_product_id and create table cells for the current statement month
+    // Add the image cells for the current statement month
     uniqueRankProductIds.forEach(rankProductId => {
-      const imageCells = monthData.filter(d => d[Object.keys(d)[5]].value === rankProductId);
+      const imageData = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
+      const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
+      const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
+      const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
+      const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
+      assetRow.append('td')
+        .style('background-color', config.rowColor2)
+        .style('color', config.fontColor)
+        .style('font-size', config.fontSize)
+        .style('font-family', config.fontFamily)
+        .style('padding', config.headerPadding)
+        .text(id);
 
-      imageCells.forEach((imageData, index) => {
-        const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value : '';
-        const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
-        const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
-        const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
+      const mediaCell = row.append('td').style('padding', '5px');
+      if (mediaType !== 'VIDEO') {
+        mediaCell.append('img')
+          .style('width', config.imageWidth)
+          .style('height', '90px')
+          .attr('src', imageUrl)
+          .attr('alt', 'Pulled');
+      } else if (mediaType === 'VIDEO') {
+        mediaCell.append('video')
+          .style('width', '100px')
+          .style('height', config.imageWidth)
+          .attr('src', imageUrl)
+          .attr('alt', 'Pulled');
+      }
 
-        const isDuplicateMasterId = masterIdCounts[id] > 1;
+      revenueRow.append('td')
+        .style('background-color', config.rowColor1)
+        .style('color', config.fontColor)
+        .style('font-size', config.fontSize)
+        .style('font-family', config.fontFamily)
+        .style('padding', config.headerPadding)
+        .text(revenue);
 
-        assetRow.append('td')
-          .style('color', config.fontColor)
-          .style('font-size', config.fontSize)
-          .style('font-family', config.fontFamily)
-          .style('padding', config.headerPadding)
-          .text(id);
-
-        const mediaCell = row.append('td').style('padding', '5px').style('border-right', '1px solid #ccc');
-        if (mediaType !== 'VIDEO') {
-          const imageContainer = mediaCell.append('div')
-            .style('width', config.imageWidth)
-            .style('height', '90px')
-            .style('position', 'relative');
-          
-          const image = imageContainer.append('img')
-            .style('width', '100%')
-            .style('height', '100%')
-            .attr('src', imageUrl)
-            .attr('alt', rankProductId);
-
-          if (isDuplicateMasterId) {
-            imageContainer.style('background-color', 'green');
-            image.style('border', '3px solid green');
-          }
-        } else if (mediaType === 'VIDEO') {
-          
-          const imageContainer = mediaCell.append('div')
-            .style('width', config.imageWidth)
-            .style('height', '90px')
-            .style('position', 'relative');
-          
-          const image = imageContainer.append('video')
-            .style('width', '100%')
-            .style('height', '100%')
-            .attr('src', imageUrl)
-            .attr('alt', rankProductId);
-
-          if (isDuplicateMasterId) {
-            image.style('border', '3px solid green');
-          }
-          
-        }
-
-        revenueRow.append('td')
-          .style('color', config.fontColor)
-          .style('font-size', config.fontSize)
-          .style('font-family', config.fontFamily)
-          .style('padding', config.headerPadding)
-          .text(revenue);
-      });
+     
     });
   });
 
@@ -149,9 +125,6 @@ function renderImageTable(data, container, config) {
   tableContainer.selectAll('td, th')
     .style('border', '1px solid #ccc');
 }
-
-
-
 
 function formatNumericValue(value, format) {
   // Check if a format is specified
@@ -248,24 +221,29 @@ const vis = {
     element.innerHTML = '<div class="image-table"></div><div class="error-message" style="color: red; font-weight: bold;"></div>';
     return {};
   },
-  update(data, element, config, context, queryResponse) {
+  update(data, element, config, context) {
+    console.log(config)
     const tableContainer = element.querySelector('.image-table');
     const errorMessageElement = element.querySelector('.error-message');
 
-    
     try {
       // Clear any previous error messages
       errorMessageElement.textContent = '';
 
       // Clear the table content
       tableContainer.innerHTML = '';
-      
 
-      // Render the image table
-      renderImageTable(data, d3.select(tableContainer), config, queryResponse);
+      // Get the revenue measure object based on position (index)
+      const revenueMeasure = config.query_fields.measures[0].label_short;
+
+      // Update the config with the revenue label as MeasureLabel
+      config.MeasureLabel = revenueMeasure ;
+
+      // Call the renderImageTable function with the correct arguments
+      renderImageTable(data, d3.select(tableContainer), config);
     } catch (error) {
       console.error('Error occurred during update:', error);
-      errorMessageElement.textContent = 'This chart requires dimensions. Non unique Dimension,Image Url dimension,measures(must contain a rank measure) follow this same order, id,date,url,media_type,revenue,rank ';
+      errorMessageElement.textContent = 'This chart requires dimensions. Non unique Dimension,Image Url dimension,measures(must contain a rank measure) follow this same order, id,date,url,media_type,dynamic_measure,rank';
     }
   },
 };
