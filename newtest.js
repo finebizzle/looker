@@ -237,7 +237,7 @@ const vis = {
       const revenueMeasure = config.query_fields.measures[0];
 
       // Update the config with the revenue label as MeasureLabel
-      config.MeasureLabel = revenueLabel;
+      config.MeasureLabel = revenueMeasure ;
 
       // Call the renderImageTable function with the correct arguments
       renderImageTable(data, d3.select(tableContainer), config);
