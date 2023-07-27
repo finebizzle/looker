@@ -222,6 +222,7 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
+    console.log(config)
     const tableContainer = element.querySelector('.image-table');
     const errorMessageElement = element.querySelector('.error-message');
 
@@ -232,16 +233,8 @@ const vis = {
       // Clear the table content
       tableContainer.innerHTML = '';
 
-      // Find the index of the "dynamic_measure" field in the query_fields measures array
-      const revenueFieldIndex = config.query_fields.measures.findIndex(field => field.name === 'content_partner.dynamic_measure');
-
-      // Check if the "dynamic_measure" field exists in the query_fields measures
-      if (revenueFieldIndex === -1) {
-        throw new Error('The "dynamic_measure" field does not exist in the query fields measures.');
-      }
-
-      // Get the label for "dynamic_measure" field based on its position
-      const revenueLabel = config.query_fields.measures[revenueFieldIndex].label_short;
+      // Get the revenue measure object based on position (index)
+      const revenueMeasure = config.query_fields.measures[0];
 
       // Update the config with the revenue label as MeasureLabel
       config.MeasureLabel = revenueLabel;
