@@ -233,7 +233,7 @@ const vis = {
       tableContainer.innerHTML = '';
 
       // Get the label for measureLabel1 from the data
-      const measureLabel1 = queryResponse.fields.measure_like[0].label_short;
+      const measureLabel1 = data[0][Object.keys(data[0])[4]].label_short;
 
       // Update the config with the dynamic measureLabel1
       config.MeasureLabel = measureLabel1;
