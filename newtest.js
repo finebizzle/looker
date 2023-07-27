@@ -222,6 +222,9 @@ const vis = {
     return {};
   },
   update(data, element, config, context, queryResponse) {
+    console.log("data",data);
+    console.log("config",config);
+    console.log("queryResponse",queryResponse);
     const tableContainer = element.querySelector('.image-table');
     const errorMessageElement = element.querySelector('.error-message');
 
@@ -232,11 +235,11 @@ const vis = {
       // Clear the table content
       tableContainer.innerHTML = '';
 
-      // Get the label for measureLabel1 from the data
-      const measureLabel1 = data[0][Object.keys(data[0])[4]].label_short;
+      // Get the label for revenue (assumed to be in the second position, index 1)
+      const revenueLabel = context.queryResponse.fields.measure_like[0].label_short;
 
-      // Update the config with the dynamic measureLabel1
-      config.MeasureLabel = measureLabel1;
+      // Update the config with the revenue label as measureLabel1
+      config.MeasureLabel = revenueLabel;
 
       // Render the image table
       renderImageTable(data, d3.select(tableContainer), config, queryResponse);
