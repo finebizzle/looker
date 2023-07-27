@@ -222,7 +222,6 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
-    console.log(config)
     const tableContainer = element.querySelector('.image-table');
     const errorMessageElement = element.querySelector('.error-message');
 
