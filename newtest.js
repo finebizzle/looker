@@ -221,10 +221,7 @@ const vis = {
     element.innerHTML = '<div class="image-table"></div><div class="error-message" style="color: red; font-weight: bold;"></div>';
     return {};
   },
-  update(data, element, config, context, queryResponse) {
-    console.log("data",data);
-    console.log("config",config);
-    console.log("queryResponse",queryResponse);
+  update(data, element, config, context) {
     const tableContainer = element.querySelector('.image-table');
     const errorMessageElement = element.querySelector('.error-message');
 
@@ -235,17 +232,28 @@ const vis = {
       // Clear the table content
       tableContainer.innerHTML = '';
 
-      // Get the label for revenue (assumed to be in the second position, index 1)
-      const revenueLabel = context.queryResponse.fields.measure_like[0].label_short;
+      // Split the query_fields string into an array
+      const queryFieldsArray = config.query_fields.split(',');
+
+      // Find the index of the "dynamic_measure" field in the queryFieldsArray
+      const revenueFieldIndex = queryFieldsArray.indexOf('dynamic_measure');
+
+      // Check if the "dynamic_measure" field exists in the queryFieldsArray
+      if (revenueFieldIndex === -1) {
+        throw new Error('The "dynamic_measure" field does not exist in the query fields.');
+      }
+
+      // Get the label for "dynamic_measure" field based on its position
+      const revenueLabel = context.queryResponse.fields.measure_like[revenueFieldIndex].label_short;
 
       // Update the config with the revenue label as measureLabel1
       config.MeasureLabel = revenueLabel;
 
-      // Render the image table
-      renderImageTable(data, d3.select(tableContainer), config, queryResponse);
+      // Call the renderImageTable function with the correct arguments
+      renderImageTable(data, d3.select(tableContainer), config);
     } catch (error) {
       console.error('Error occurred during update:', error);
-      errorMessageElement.textContent = 'This chart requires dimensions. Non unique Dimension,Image Url dimension,measures(must contain a rank measure) follow this same order, id,date,url,media_type,revenue,rank ';
+      errorMessageElement.textContent = 'This chart requires dimensions. Non unique Dimension,Image Url dimension,measures(must contain a rank measure) follow this same order, id,date,url,media_type,dynamic_measure,rank';
     }
   },
 };
