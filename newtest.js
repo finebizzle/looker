@@ -232,21 +232,18 @@ const vis = {
       // Clear the table content
       tableContainer.innerHTML = '';
 
-      // Split the query_fields string into an array
-      const queryFieldsArray = config.query_fields.split(',');
+      // Find the index of the "dynamic_measure" field in the query_fields measures array
+      const revenueFieldIndex = config.query_fields.measures.findIndex(field => field.name === 'content_partner.dynamic_measure');
 
-      // Find the index of the "dynamic_measure" field in the queryFieldsArray
-      const revenueFieldIndex = queryFieldsArray.indexOf('dynamic_measure');
-
-      // Check if the "dynamic_measure" field exists in the queryFieldsArray
+      // Check if the "dynamic_measure" field exists in the query_fields measures
       if (revenueFieldIndex === -1) {
-        throw new Error('The "dynamic_measure" field does not exist in the query fields.');
+        throw new Error('The "dynamic_measure" field does not exist in the query fields measures.');
       }
 
       // Get the label for "dynamic_measure" field based on its position
-      const revenueLabel = context.queryResponse.fields.measure_like[revenueFieldIndex].label_short;
+      const revenueLabel = config.query_fields.measures[revenueFieldIndex].label_short;
 
-      // Update the config with the revenue label as measureLabel1
+      // Update the config with the revenue label as MeasureLabel
       config.MeasureLabel = revenueLabel;
 
       // Call the renderImageTable function with the correct arguments
