@@ -6,20 +6,6 @@ function renderImageGrid(data, container, config) {
   const spacing = 10;
   const maxImages = config.maxImages || 500; // Maximum number of images to display
 
-  // Take the first `maxImages` elements from the data array that have images
-  const truncatedData = data.filter(d => d[Object.keys(d)[2]] && d[Object.keys(d)[2]].value).slice(0, maxImages);
-
-  // Calculate the total number of rows based on the truncated data length and images per row
-  const numRows = Math.ceil(truncatedData.length / imagesPerRow);
-
-  // Calculate the number of images to display in the last row
-  const imagesInLastRow = truncatedData.length % imagesPerRow || imagesPerRow;
-
-  // Create a container for the image grid
-  const gridContainer = container.append('div')
-    .style('display', 'flex')
-    .style('flex-wrap', 'wrap');
-
   // Loop through the truncated data and add image elements to the grid container
   truncatedData.forEach((d, index) => {
     const imageURL = d[Object.keys(d)[0]].value;
@@ -32,32 +18,14 @@ function renderImageGrid(data, container, config) {
       .style('background-size', 'cover')
       .style('background-position', 'center')
       .style('background-image', `url(${imageURL})`);
-
-  
   });
 
-  // Adjust the grid container height based on the number of rows
-  const gridHeight = numRows * (imageHeight + 2 * spacing);
-  gridContainer.style('height', `${gridHeight}px`);
+  // ... (existing code)
 }
 
 const vis = {
-  id: 'image-grid',
-  label: 'Image Grid',
-  options: {
-    maxImages: {
-      label: 'Max Images',
-      default: 500,
-      type: 'number',
-      display: 'text',
-      section: 'Data',
-      placeholder: 'Enter the maximum number of images to display',
-    },
-  },
-  create(element, config) {
-    element.innerHTML = '<div class="image-grid"></div>';
-    return {};
-  },
+  // ... (existing code)
+
   update(data, element, config, context) {
     // Render the image grid
     const container = d3.select(element).select('.image-grid');
@@ -77,8 +45,15 @@ const vis = {
       console.error('Error occurred during update:', error);
       errorMessageElement.textContent = 'This chart requires 1 Image dimension and 1 Measure, Move the order of dimension and measure to display chart. ';
     }
+
+    // Remove empty elements from the last row
+    const lastRow = container.select(':nth-child(' + numRows + ')');
+    lastRow.selectAll('div').each(function(d, i) {
+      if (i >= imagesInLastRow) {
+        d3.select(this).remove();
+      }
+    });
   },
 };
 
 looker.plugins.visualizations.add(vis);
-
