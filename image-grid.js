@@ -36,17 +36,6 @@ function renderImageGrid(data, container, config) {
   
   });
 
-  // Add empty elements to fill the last row if needed
-  if (truncatedData.length < imagesPerRow) {
-    for (let i = 0; i < imagesPerRow - truncatedData.length; i++) {
-      gridContainer.append('div')
-        .style('width', `${imageWidth}px`)
-        .style('height', `${imageHeight}px`)
-        .style('margin', `${spacing}px`)
-        .style('background-color', 'transparent');
-    }
-  }
-
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
   gridContainer.style('height', `${gridHeight}px`);
