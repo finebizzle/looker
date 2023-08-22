@@ -23,6 +23,8 @@ function renderImageGrid(data, container, config) {
   // Loop through the truncated data and add image elements to the grid container
   truncatedData.forEach((d, index) => {
     const imageURL = d[Object.keys(d)[0]].value;
+    const imageAlt = d[Object.keys(d)[1]].label || 'Image'; // Use image label as alt text
+
 
     const imageContainer = gridContainer.append('div')
       .style('width', `${imageWidth}px`)
@@ -31,7 +33,10 @@ function renderImageGrid(data, container, config) {
       .style('background-color', '#eee')
       .style('background-size', 'cover')
       .style('background-position', 'center')
-      .style('background-image', `url(${imageURL})`);
+      .style('background-image', `url(${imageURL})`)
+      .append('img')
+      .attr('src', imageURL)
+      .attr('alt', 'pulled ' + imageAlt);
 
   
   });
