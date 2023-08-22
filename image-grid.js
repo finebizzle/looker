@@ -33,9 +33,12 @@ function renderImageGrid(data, container, config) {
       .style('background-color', '#eee')
       .style('background-size', 'cover')
       .style('background-position', 'center')
-      .style('background-image', `url(${imageURL})`
-      .attr('alt', 'pulled ' + imageAlt));
+      .style('background-image', `url(${imageURL})`)
+      ;
 
+    // Add the alt attribute to the image container
+    imageContainer.append('img')
+      .attr('alt', 'pulled ' + imageAlt);
   
   });
 
