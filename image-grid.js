@@ -35,21 +35,8 @@ function renderImageGrid(data, container, config) {
       .style('background-position', 'center')
       .style('background-image', `url(${imageURL})`);
 
-    // Add overlay text to the image container
-    imageContainer.append('div')
-      .style('position', 'absolute')
-      .style('top', 0)
-      .style('left', 0)
-      .style('width', '100%')
-      .style('height', '100%')
-      .style('display', 'flex')
-      .style('justify-content', 'center')
-      .style('align-items', 'center')
-      .style('background-color', 'rgba(0, 0, 0, 0.5)') // Overlay background color
-      .style('color', '#000')
-      .style('font-size', '14px')
-      .style('text-align', 'center')
-      .text(imageAlt); // Set the overlay text
+    // Add the alt attribute to the image container
+    imageContainer.attr('alt', imageAlt);
   
   });
 
