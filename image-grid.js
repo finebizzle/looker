@@ -35,7 +35,6 @@ function renderImageGrid(data, container, config) {
       .style('background-position', 'center')
       .style('background-image', `url(${imageURL})`)
       .append('img')
-      .attr('src', imageURL)
       .attr('alt', 'pulled ' + imageAlt);
 
   
