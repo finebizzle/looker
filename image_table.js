@@ -99,14 +99,12 @@ function renderImageTable(data, container, config) {
         mediaCell.append('img')
           .style('width', config.imageWidth)
           .style('height', '90px')
-          .attr('src', imageUrl)
-          .attr('alt', 'Pulled');
+          .attr('src', imageUrl);
       } else if (mediaType === 'VIDEO') {
         mediaCell.append('video')
           .style('width', '100px')
           .style('height', config.imageWidth)
-          .attr('src', imageUrl)
-          .attr('alt', 'Pulled');
+          .attr('src', imageUrl);
       }
 
       revenueRow.append('td')
