@@ -11,7 +11,7 @@ function renderImageTable(data, container, config) {
   // Extract the unique rank_product_id values
   // const uniqueRankProductIds = Array.from(new Set(data.map(d => d['content_partner.rank_product_id'].value)));
 
-  const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[6]].value)));
+  const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[5]].value)));
 
   // Create the table header row
   const headerRow = tableContainer.append('tr');
@@ -84,7 +84,7 @@ function renderImageTable(data, container, config) {
       const imageData = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
       const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
       const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
-      const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[5]].value, config.numericFormat) : '';
+      const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
       const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
       assetRow.append('td')
         .style('background-color', config.rowColor2)
