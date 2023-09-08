@@ -94,6 +94,7 @@ function renderImageTable(data, container, config) {
         .style('padding', config.headerPadding)
         .text(id);
 
+      if (imageUrl) {
       const mediaCell = row.append('td').style('padding', '5px');
       if (mediaType !== 'VIDEO') {
         mediaCell.append('img')
@@ -106,7 +107,7 @@ function renderImageTable(data, container, config) {
           .style('height', config.imageWidth)
           .attr('src', imageUrl);
       }
-
+      }
       revenueRow.append('td')
         .style('background-color', config.rowColor1)
         .style('color', config.fontColor)
