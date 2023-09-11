@@ -81,7 +81,7 @@ function renderImageTable(data, container, config) {
 
     // Add the image cells for the current statement month
     uniqueRankProductIds.forEach(rankProductId => {
-      const imageData = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
+      const imageData = monthData.find(d => d[Object.keys(d)[6]].value === rankProductId);
       const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
       const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
       const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[5]].value, config.numericFormat) : '';
