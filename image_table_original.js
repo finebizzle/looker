@@ -95,17 +95,10 @@ function renderImageTable(data, container, config) {
         .text(id);
 
       const mediaCell = row.append('td').style('padding', '5px');
-      if (mediaType !== 'VIDEO') {
         mediaCell.append('img')
           .style('width', config.imageWidth)
           .style('height', '90px')
           .attr('src', imageUrl);
-      } else if (mediaType === 'VIDEO') {
-        mediaCell.append('video')
-          .style('width', '100px')
-          .style('height', config.imageWidth)
-          .attr('src', imageUrl);
-      }
 
       revenueRow.append('td')
         .style('background-color', config.rowColor1)
