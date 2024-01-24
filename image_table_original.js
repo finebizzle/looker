@@ -1,82 +1,47 @@
 function renderImageTable(data, container, config) {
-  // Create a container for the image table
-  const tableContainer = container.append('table')
-    .style('border-collapse', 'collapse');
+  // ... (previous code)
 
-  // Extract the unique statement months from the data objects
-  // const statementMonths = Array.from(new Set(data.map(d => d['content_partner.statement_month'].value)));
-
-    const statementMonths = Array.from(new Set(data.map(d => d[Object.keys(d)[1]].value)));
-
-  // Extract the unique rank_product_id values
-  // const uniqueRankProductIds = Array.from(new Set(data.map(d => d['content_partner.rank_product_id'].value)));
-
-  const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[6]].value)));
-
-  // Create the table header row
-  const headerRow = tableContainer.append('tr');
-
-  // Get the custom labels from the options
-  const statementMonthLabel = config.statementMonthLabel || 'Dimension';
-  const measureLabel1 = config.MeasureLabel || 'Measure';
-  const measureLabel2 = config.MeasureLabel2 || '';
-
-  // Add the statement month header
-  headerRow.append('th')
-    .text(statementMonthLabel)
-    .style('background-color', config.headerColor)
-    .style('color', config.headerFontColor)
-    .style('font-size', config.fontSize)
-    .style('font-family', config.fontFamily)
-    .style('padding', config.headerPadding);
-
-  // Add the image headers
+  // Add the image cells for the current statement month
   uniqueRankProductIds.forEach(rankProductId => {
-    headerRow.append('th')
-      .style('background-color', config.headerColor)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .text(rankProductId);
-  });
+    const imageData = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
+    const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value : '';
+    const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
+    const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
+    const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
 
-  // Iterate over each statement month
-  statementMonths.forEach(month => {
-    // Filter the data for the current statement month
-    // const monthData = data.filter(d => d['content_partner.statement_month'].value === month);
-    const monthData = data.filter(d => d[Object.keys(d)[1]].value === month);
-    // Create a table row for the current statement month
-    const assetRow = tableContainer.append('tr');
-    const row = tableContainer.append('tr')
-      .style('border-top', '1px solid #ccc');
-    const revenueRow = tableContainer.append('tr');
-    // Add the statement month cell
     assetRow.append('td')
-      .text(measureLabel2)
       .style('background-color', config.rowColor2)
-      .style('color', config.headerFontColor)
+      .style('color', config.fontColor)
       .style('font-size', config.fontSize)
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
-    
-    row.append('td')
-      .text(month)
-      .style('background-color', config.headerColor)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
+      .text(id);
+
+    if (imageUrl) {
+      const mediaCell = row.append('td').style('padding', '5px');
+      if (mediaType !== 'VIDEO') {
+        mediaCell.append('img')
+          .style('width', config.imageWidth)
+          .style('height', '90px')
+          .attr('src', imageUrl)
+          .attr('alt', 'Pulled');
+      } else if (mediaType === 'VIDEO') {
+        mediaCell.append('video')
+          .style('width', '100px')
+          .style('height', config.imageWidth)
+          .attr('src', imageUrl)
+          .attr('alt', 'Pulled');
+      }
+    }
+
     revenueRow.append('td')
-      .text(measureLabel1)
       .style('background-color', config.rowColor1)
-      .style('color', config.headerFontColor)
+      .style('color', config.fontColor)
       .style('font-size', config.fontSize)
       .style('font-family', config.fontFamily)
       .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
+      .text(revenue);
+  });
     
 
     // Add the image cells for the current statement month
