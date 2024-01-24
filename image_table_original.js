@@ -66,8 +66,6 @@ function renderImageTable(data, container, config) {
     uniqueRankProductIds.forEach(rankProductId => {
       const imageData = monthData.find(d => d[Object.keys(d)[6]].value === rankProductId);
 
-      // Only create cells if there is data for the current combination
-      if (imageData) {
         const imageUrl = imageData[Object.keys(imageData)[2]].value;
         const mediaType = imageData[Object.keys(imageData)[3]].value;
         const revenue = formatNumericValue(imageData[Object.keys(imageData)[5]].value, config.numericFormat);
@@ -81,13 +79,15 @@ function renderImageTable(data, container, config) {
           .style('padding', config.headerPadding)
           .text(id);
 
+      if (imageUrl) {
         const mediaCell = row.append('td').style('padding', '5px');
         mediaCell.append('img')
           .style('width', config.imageWidth)
           .style('height', '90px')
           .attr('src', imageUrl)
           .attr('alt', 'Pulled');
-
+      }
+      
         revenueRow.append('td')
           .style('background-color', config.rowColor1)
           .style('color', config.fontColor)
@@ -95,7 +95,6 @@ function renderImageTable(data, container, config) {
           .style('font-family', config.fontFamily)
           .style('padding', config.headerPadding)
           .text(revenue);
-      }
     });
   });
 
