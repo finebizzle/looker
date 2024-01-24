@@ -51,11 +51,15 @@ function renderImageTable(data, container, config) {
         .style('padding', config.headerPadding)
         .text(id);
 
+      // Only append the image cell if there is a valid imageUrl
+    if (imageUrl) {
       const mediaCell = row.append('td').style('padding', '5px');
-        mediaCell.append('img')
-          .style('width', config.imageWidth)
-          .style('height', '90px')
-          .attr('src', imageUrl);
+      mediaCell.append('img')
+        .style('width', config.imageWidth)
+        .style('height', '90px')
+        .attr('src', imageUrl)
+        .attr('alt', 'Pulled');
+    }
 
       revenueRow.append('td')
         .style('background-color', config.rowColor1)
