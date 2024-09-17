@@ -1,4 +1,4 @@
-function renderImageGrid(data, container, config) {
+function renderNonUniformImageGrid(data, container, config) {
   const maxImages = config.maxImages || 500; // Maximum number of images to display
 
   // Filter and truncate data to include only valid images
@@ -16,13 +16,12 @@ function renderImageGrid(data, container, config) {
   style.innerHTML = `
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      grid-auto-rows: 10px;
-      gap: 10px;
+      grid-template-columns: repeat(5, 1fr); /* Adjust columns as needed */
+      grid-auto-rows: 100px; /* Base row height */
+      gap: 15px; /* Gap between images */
     }
     .grid-item {
       position: relative;
-      width: 100%;
       overflow: hidden;
     }
     .grid-item img {
@@ -33,18 +32,30 @@ function renderImageGrid(data, container, config) {
   `;
   document.head.appendChild(style);
 
+  // Predefined grid spans for non-uniform layout (similar to your image)
+  const predefinedGridSpans = [
+    { colSpan: 1, rowSpan: 1 },
+    { colSpan: 1, rowSpan: 1 },
+    { colSpan: 2, rowSpan: 1 },
+    { colSpan: 1, rowSpan: 1 },
+    { colSpan: 1, rowSpan: 1 },
+    { colSpan: 2, rowSpan: 2 },
+    { colSpan: 1, rowSpan: 1 },
+    { colSpan: 2, rowSpan: 1 },
+    { colSpan: 1, rowSpan: 1 },
+    { colSpan: 1, rowSpan: 1 },
+  ];
+
   // Loop through the truncated data and add image elements to the grid container
-  truncatedData.forEach(d => {
+  truncatedData.forEach((d, index) => {
     const imageURL = d[Object.keys(d)[0]].value;
     const imageAlt = d[Object.keys(d)[1]]?.label || 'Image';
-    const measureValue = d[Object.keys(d)[2]]?.value || 1;
-
-    // Determine the row span based on the measure value
-    const rowSpan = Math.ceil(measureValue * 5); // Adjust multiplier as needed
+    const gridSpan = predefinedGridSpans[index % predefinedGridSpans.length]; // Cycle through predefined spans
 
     const imageContainer = gridContainer.append('div')
       .attr('class', 'grid-item')
-      .style('grid-row-end', `span ${rowSpan}`);
+      .style('grid-column', `span ${gridSpan.colSpan}`)
+      .style('grid-row', `span ${gridSpan.rowSpan}`);
 
     imageContainer.append('img')
       .attr('src', imageURL)
@@ -53,7 +64,7 @@ function renderImageGrid(data, container, config) {
 }
 
 const vis = {
-  id: 'image-grid',
+  id: 'non-uniform-image-grid',
   label: 'Non-Uniform Image Grid',
   options: {
     maxImages: {
@@ -74,7 +85,7 @@ const vis = {
 
     try {
       // Render the non-uniform image grid
-      renderImageGrid(data, container, config);
+      renderNonUniformImageGrid(data, container, config);
     } catch (error) {
       console.error('Error occurred during update:', error);
       element.innerHTML = '<div class="error-message">An error occurred while rendering the visualization.</div>';
