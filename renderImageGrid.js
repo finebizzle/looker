@@ -1,56 +1,64 @@
 function renderImageGrid(data, container, config) {
-  // Define dimensions and layout specifics based on your image layout
-  const largeImageWidth = 250;
-  const largeImageHeight = 350;
-  const smallImageWidth = 180;
-  const smallImageHeight = 120;
-  const spacing = 10;
+  const maxImages = config.maxImages || 500; // Maximum number of images to display
 
-  // Create a container for the grid
+  // Filter and truncate data to include only valid images
+  const truncatedData = data
+    .filter(d => d[Object.keys(d)[0]] && d[Object.keys(d)[0]].value)
+    .slice(0, maxImages);
+
+  // Create a container for the image grid with CSS Grid layout
   const gridContainer = container.append('div')
-    .style('display', 'flex')
-    .style('flex-wrap', 'wrap')
-    .style('justify-content', 'space-between');
+    .attr('class', 'grid-container');
 
-  // Example layout: one big image, a set of smaller images, and a title area
-  const largeImage = data[0]; // Assuming the first image is the large one in the middle
+  // Add CSS styles for the grid and images
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = `
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-auto-rows: 10px;
+      gap: 10px;
+    }
+    .grid-item {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+    .grid-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  `;
+  document.head.appendChild(style);
 
-  // Create a large image block (like the central player image in your screenshot)
-  const largeImageContainer = gridContainer.append('div')
-    .style('width', `${largeImageWidth}px`)
-    .style('height', `${largeImageHeight}px`)
-    .style('background-color', '#eee')
-    .style('background-size', 'cover')
-    .style('background-position', 'center')
-    .style('margin', `${spacing}px`)
-    .style('background-image', `url(${largeImage.url})`);
+  // Loop through the truncated data and add image elements to the grid container
+  truncatedData.forEach(d => {
+    const imageURL = d[Object.keys(d)[0]].value;
+    const imageAlt = d[Object.keys(d)[1]]?.label || 'Image';
+    const measureValue = d[Object.keys(d)[2]]?.value || 1;
 
-  // Loop through the remaining data to create smaller images (like in the screenshot)
-  data.slice(1).forEach((d, index) => {
+    // Determine the row span based on the measure value
+    const rowSpan = Math.ceil(measureValue * 5); // Adjust multiplier as needed
+
     const imageContainer = gridContainer.append('div')
-      .style('width', `${smallImageWidth}px`)
-      .style('height', `${smallImageHeight}px`)
-      .style('background-color', '#eee')
-      .style('background-size', 'cover')
-      .style('background-position', 'center')
-      .style('margin', `${spacing}px`)
-      .style('background-image', `url(${d.url})`);
-  });
+      .attr('class', 'grid-item')
+      .style('grid-row-end', `span ${rowSpan}`);
 
-  // Adjust the container height and width dynamically based on content
-  const containerWidth = (largeImageWidth + (smallImageWidth * 4) + (spacing * 6));
-  const containerHeight = largeImageHeight + (smallImageHeight * 2) + (spacing * 3);
-  gridContainer.style('width', `${containerWidth}px`)
-    .style('height', `${containerHeight}px`);
+    imageContainer.append('img')
+      .attr('src', imageURL)
+      .attr('alt', imageAlt);
+  });
 }
 
 const vis = {
   id: 'image-grid',
-  label: 'Image Grid',
+  label: 'Non-Uniform Image Grid',
   options: {
     maxImages: {
       label: 'Max Images',
-      default: 10,
+      default: 500,
       type: 'number',
       display: 'text',
       section: 'Data',
@@ -59,22 +67,17 @@ const vis = {
   },
   create(element, config) {
     element.innerHTML = '<div class="image-grid"></div>';
-    return {};
   },
   update(data, element, config, context) {
-    // Render the image grid
     const container = d3.select(element).select('.image-grid');
-    const errorMessageElement = element.querySelector('.error-message');
-    renderImageGrid(data, container, config);
+    container.selectAll('*').remove(); // Clear previous content
 
     try {
-      // Clear any previous error messages
-      errorMessageElement.textContent = '';
-
-      // Additional content or functionality could be inserted here if needed
+      // Render the non-uniform image grid
+      renderImageGrid(data, container, config);
     } catch (error) {
       console.error('Error occurred during update:', error);
-      errorMessageElement.textContent = 'This chart requires specific dimensions and measures to work.';
+      element.innerHTML = '<div class="error-message">An error occurred while rendering the visualization.</div>';
     }
   },
 };
