@@ -22,13 +22,16 @@ function renderNonUniformImageGrid(data, container, config) {
     }
     .grid-item {
       position: relative;
-      overflow: hidden;
+      display: flex;
+      align-items: center; /* Vertically center image */
+      justify-content: center; /* Horizontally center image */
+      background-color: #f0f0f0; /* Add background color to show empty space */
+      overflow: hidden; /* Hide any overflow if needed */
     }
     .grid-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain; /* Show the full image */
-      background-color: #f0f0f0; /* Add background color to show empty space */
+      max-width: 100%; /* Limit image width to the container */
+      max-height: 100%; /* Limit image height to the container */
+      object-fit: contain; /* Ensure the full image is visible */
     }
   `;
   document.head.appendChild(style);
