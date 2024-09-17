@@ -103,23 +103,23 @@
           .x(function(d) { return x(d.date); })
           .y(function(d) { return y(d.value); });
 
-        svg.append("path")
+        var path = svg.append("path")
           .datum(formattedData)
           .attr("fill", "none")
           .attr("stroke", "steelblue")
           .attr("stroke-width", 1.5)
           .attr("d", line);
 
-        // Animation effect: Reveal the line gradually
-        var totalLength = svg.select("path").node().getTotalLength();
+        // Animate the measure line (not the axis)
+        var totalLength = path.node().getTotalLength();
 
-        svg.select("path")
+        path
           .attr("stroke-dasharray", totalLength + " " + totalLength)
           .attr("stroke-dashoffset", totalLength)
           .transition()
-          .duration(config.animationDuration)
+          .duration(config.animationDuration)  // Apply duration to the animation
           .ease(d3.easeLinear)
-          .attr("stroke-dashoffset", 0);
+          .attr("stroke-dashoffset", 0);  // Line gradually appears
 
         // Add labels
         svg.append("text")
