@@ -16,14 +16,13 @@ function renderDynamicImageGrid(data, container, config) {
   style.innerHTML = `
     .grid-container {
       display: grid;
-      grid-auto-flow: dense; /* Ensures best fit for varying image sizes */
-      grid-auto-rows: auto; /* Allow rows to be dynamic */
-      grid-auto-columns: auto; /* Allow columns to be dynamic */
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Dynamic column layout */
+      grid-auto-rows: 10px; /* Base height for auto-row calculation */
       gap: 10px; /* Gap between images */
     }
     .grid-item {
       position: relative;
-      display: block;
+      grid-row-end: span 1; /* Default row span, adjusted dynamically */
       overflow: hidden; /* Hide any overflow if needed */
     }
     .grid-item img {
@@ -39,7 +38,8 @@ function renderDynamicImageGrid(data, container, config) {
     const imageAlt = d[Object.keys(d)[1]]?.label || 'Image';
 
     const imageContainer = gridContainer.append('div')
-      .attr('class', 'grid-item');
+      .attr('class', 'grid-item')
+      .style('grid-row-end', `span ${Math.ceil(Math.random() * 3 + 1)}`); // Adjust row span dynamically for variety
 
     imageContainer.append('img')
       .attr('src', imageURL)
