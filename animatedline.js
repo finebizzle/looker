@@ -59,24 +59,30 @@
         });
 
         // Ensure the options are updated and re-rendered in Looker
-        this.trigger("registerOptions", this.options);  // Tell Looker to re-render the options
+        this.trigger("registerOptions", this.options);
 
         // Clear previous content
         d3.select("#animated-line-chart").html("");
 
         // Data parsing
         var dimension = queryResponse.fields.dimensions[0].name;
-        var measures = queryResponse.fields.measures.map(m => m.name); // Array of measures
+        var measures = queryResponse.fields.measures.map(m => m.name);
 
-          // Prepare data for single or multiple lines
+        // Prepare data for single or multiple lines
         var formattedData = measures.map((measureName, i) => {
           return {
             name: config[`legendName${i}`] || measureName,
             values: data.map(function(row) {
-              // Adjusted measure value access
-              var measureValue = row[measureName].value !== undefined ? row[measureName].value : row[measureName];
+              var dimValue = row[dimension].value;
+              var measureValue = row[measureName].value;
+
+              // For date dimensions, parse to Date object
+              if (queryResponse.fields.dimensions[0].is_timeframe) {
+                dimValue = new Date(dimValue);
+              }
+
               return {
-                dimensionValue: new Date(row[dimension].value),
+                dimensionValue: dimValue,
                 value: measureValue
               };
             })
@@ -84,7 +90,7 @@
         });
 
         // Set up chart dimensions and scales
-        var margin = {top: 10, right: 100, bottom: 30, left: 40}, // Adjust right margin for the legend
+        var margin = {top: 10, right: 100, bottom: 30, left: 40},
             width = element.clientWidth - margin.left - margin.right,
             height = element.clientHeight - margin.top - margin.bottom;
 
@@ -95,9 +101,11 @@
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        // Define x and y scales
-        var x = d3.scaleTime()
-          .domain(d3.extent(formattedData[0].values, function(d) { return d.dimensionValue; }))
+        // Determine x scale type based on dimension data type
+        var xScaleType = queryResponse.fields.dimensions[0].is_timeframe ? d3.scaleTime : d3.scalePoint;
+
+        var x = xScaleType()
+          .domain(formattedData[0].values.map(function(d) { return d.dimensionValue; }))
           .range([0, width]);
 
         var y = d3.scaleLinear()
@@ -107,9 +115,14 @@
           .range([height, 0]);
 
         // Add the X Axis
+        var xAxis = d3.axisBottom(x);
+        if (xScaleType === d3.scalePoint) {
+          xAxis.tickFormat(function(d) { return d; });
+        }
+
         svg.append("g")
           .attr("transform", "translate(0," + height + ")")
-          .call(d3.axisBottom(x));
+          .call(xAxis);
 
         // Add the Y Axis
         svg.append("g")
@@ -142,12 +155,12 @@
           .style("font-size", "12px")
           .style("fill", "#000");
 
-        // Add a line for each series (supports both single and multiple lines)
+        // Add a line for each series
         formattedData.forEach(function(series, index) {
           var path = svg.append("path")
             .datum(series.values)
             .attr("fill", "none")
-            .attr("stroke", color(index)) // Apply a different color for each series
+            .attr("stroke", color(index))
             .attr("stroke-width", 1.5)
             .attr("d", line);
 
@@ -164,20 +177,24 @@
 
           // Add circles for each data point and the tooltip behavior
           svg.selectAll(".dot-" + index)
-            .data(series.values)
+            .data(series.values.map(function(d) {
+              return { data: d, seriesName: series.name };
+            }))
             .enter()
             .append("circle")
             .attr("class", "dot-" + index)
-            .attr("cx", function(d) { return x(d.dimensionValue); })
-            .attr("cy", function(d) { return y(d.value); })
+            .attr("cx", function(d) { return x(d.data.dimensionValue); })
+            .attr("cy", function(d) { return y(d.data.value); })
             .attr("r", 4)
             .attr("fill", color(index))
-            .on("mouseover", function(event, d) {
+            .on("mouseover", function(d) {
+              var event = d3.event;
               tooltip.style("display", null);
-              tooltipText.text(series.name + ": " + d.value);  // Corrected to use d.value
+              tooltipText.text(d.seriesName + ": " + d.data.value);
             })
-            .on("mousemove", function(event) {
-              tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
+            .on("mousemove", function(d) {
+              var event = d3.event;
+              tooltip.attr("transform", "translate(" + (event.offsetX + 10) + "," + (event.offsetY - 30) + ")");
             })
             .on("mouseout", function() {
               tooltip.style("display", "none");
@@ -208,21 +225,21 @@
 
         // Add colored rectangles to legend
         legend.append("rect")
-          .attr("x", width + 20) // Position it to the right of the chart
+          .attr("x", width + 20)
           .attr("width", 18)
           .attr("height", 18)
           .style("fill", function(d, i) { return color(i); });
 
         // Add text to legend
         legend.append("text")
-          .attr("x", width + 45) // Position the text next to the rectangles
+          .attr("x", width + 45)
           .attr("y", 9)
           .attr("dy", ".35em")
           .style("text-anchor", "start")
           .text(function(d) { return d.name; });
 
       } catch (error) {
-        this.addError({title: "Visualization Error", message: error.message});
+        this.addError({ title: "Visualization Error", message: error.message });
         console.error("Visualization Error:", error);
       }
     }
