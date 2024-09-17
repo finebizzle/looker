@@ -75,6 +75,7 @@
             values: data.map(function(row) {
               var dimValue = row[dimension].value;
               var measureValue = row[measureName].value;
+              var measureRendered = row[measureName].rendered || measureValue;
 
               // For date dimensions, parse to Date object
               if (queryResponse.fields.dimensions[0].is_timeframe) {
@@ -83,7 +84,8 @@
 
               return {
                 dimensionValue: dimValue,
-                value: measureValue
+                value: measureValue,
+                rendered: measureRendered
               };
             })
           };
@@ -199,7 +201,7 @@
             .on("mouseover", function(d) {
               var event = d3.event;
               tooltip.style("display", null);
-              tooltipText.text(d.seriesName + ": " + d.data.value);
+              tooltipText.text(d.seriesName + ": " + d.data.rendered);
             })
             .on("mousemove", function(d) {
               var event = d3.event;
