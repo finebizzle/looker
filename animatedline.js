@@ -79,8 +79,8 @@
             name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
             values: data.map(function(row) {
               return {
-                dimensionValue: row[dimension].value,  // Use dimension value here
-                value: row[measureName].value
+                dimensionValue: row[dimension].value,  // Correctly access the dimension value
+                measureValue: row[measureName].value   // Correctly access the measure value
               };
             })
           };
@@ -100,12 +100,12 @@
 
         // Define x and y scales
         var x = d3.scaleTime()
-          .domain(d3.extent(data, function(d) { return new Date(d[dimension].value); }))
+          .domain(d3.extent(data, function(d) { return new Date(row[dimension].value); }))
           .range([0, width]);
 
         var y = d3.scaleLinear()
           .domain([0, d3.max(formattedData, function(series) {
-            return d3.max(series.values, function(d) { return d.value; });
+            return d3.max(series.values, function(d) { return d.measureValue; });
           })])
           .range([height, 0]);
 
@@ -124,7 +124,7 @@
         // Line generator function
         var line = d3.line()
           .x(function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to map the x to the dimension value
-          .y(function(d) { return y(d.value); });
+          .y(function(d) { return y(d.measureValue); });
 
         // Tooltip definition
         var tooltip = svg.append("g")
@@ -172,12 +172,12 @@
             .append("circle")
             .attr("class", "dot-" + index)
             .attr("cx", function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to use the dimension value
-            .attr("cy", function(d) { return y(d.value); })
+            .attr("cy", function(d) { return y(d.measureValue); })
             .attr("r", 4)
             .attr("fill", color(index))
             .on("mouseover", function(event, d) {
               tooltip.style("display", null);
-              tooltipText.text(series.name + ": " + d.value + "\nDimension: " + d.dimensionValue);
+              tooltipText.text(series.name + ": " + d.measureValue + "\nDimension: " + d.dimensionValue);
             })
             .on("mousemove", function(event) {
               tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
