@@ -79,7 +79,7 @@
             name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
             values: data.map(function(row) {
               return {
-                date: new Date(row[dimension].value),
+                dimensionValue: row[dimension].value,  // Use dimension value here
                 value: row[measureName].value
               };
             })
@@ -123,8 +123,27 @@
 
         // Line generator function
         var line = d3.line()
-          .x(function(d) { return x(d.date); })
+          .x(function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to map the x to the dimension value
           .y(function(d) { return y(d.value); });
+
+        // Tooltip definition
+        var tooltip = svg.append("g")
+          .attr("class", "tooltip")
+          .style("display", "none");
+
+        tooltip.append("rect")
+          .attr("width", 120)
+          .attr("height", 50)
+          .attr("fill", "lightsteelblue")
+          .style("opacity", 0.9)
+          .attr("rx", 8)
+          .attr("ry", 8);
+
+        var tooltipText = tooltip.append("text")
+          .attr("x", 10)
+          .attr("y", 20)
+          .style("font-size", "12px")
+          .style("fill", "#000");
 
         // Add a line for each series (supports both single and multiple lines)
         formattedData.forEach(function(series, index) {
@@ -152,18 +171,19 @@
             .enter()
             .append("circle")
             .attr("class", "dot-" + index)
-            .attr("cx", function(d) { return x(d.date); })
+            .attr("cx", function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to use the dimension value
             .attr("cy", function(d) { return y(d.value); })
             .attr("r", 4)
             .attr("fill", color(index))
             .on("mouseover", function(event, d) {
-              tooltip.transition().duration(200).style("opacity", 1);
-              tooltip.html(series.name + "<br/>Date: " + d3.timeFormat("%b %d, %Y")(d.date) + "<br/>Value: " + d.value)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 28) + "px");
+              tooltip.style("display", null);
+              tooltipText.text(series.name + ": " + d.value + "\nDimension: " + d.dimensionValue);
+            })
+            .on("mousemove", function(event) {
+              tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
             })
             .on("mouseout", function() {
-              tooltip.transition().duration(500).style("opacity", 0);
+              tooltip.style("display", "none");
             });
         });
 
@@ -203,11 +223,6 @@
           .attr("dy", ".35em")
           .style("text-anchor", "start")
           .text(function(d) { return d.name; });
-
-        // Tooltip definition
-        var tooltip = d3.select("body").append("div")
-          .attr("class", "tooltip")
-          .style("opacity", 0);
 
       } catch (error) {
         this.addError({title: "Visualization Error", message: error.message});
