@@ -126,14 +126,14 @@
           .x(function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to map the x to the dimension value
           .y(function(d) { return y(d.value); });
 
-                // Tooltip definition
+        // Tooltip definition
         var tooltip = svg.append("g")
           .attr("class", "tooltip")
           .style("display", "none");
 
         tooltip.append("rect")
-          .attr("width", 150)
-          .attr("height", 60)
+          .attr("width", 120)
+          .attr("height", 50)
           .attr("fill", "lightsteelblue")
           .style("opacity", 0.9)
           .attr("rx", 8)
@@ -145,7 +145,7 @@
           .style("font-size", "12px")
           .style("fill", "#000");
 
-        // Add circles for each data point and the tooltip behavior
+        // Add a line for each series (supports both single and multiple lines)
         formattedData.forEach(function(series, index) {
           var path = svg.append("path")
             .datum(series.values)
@@ -177,7 +177,7 @@
             .attr("fill", color(index))
             .on("mouseover", function(event, d) {
               tooltip.style("display", null);
-              tooltipText.html(`${series.name}<br>Dimension: ${d.dimensionValue}<br>Value: ${d.value}`);
+              tooltipText.text(d.value);
             })
             .on("mousemove", function(event) {
               tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
