@@ -27,7 +27,8 @@ function renderNonUniformImageGrid(data, container, config) {
     .grid-item img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* Show the full image */
+      background-color: #f0f0f0; /* Add background color to show empty space */
     }
   `;
   document.head.appendChild(style);
