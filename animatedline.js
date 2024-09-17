@@ -49,6 +49,20 @@
           throw new Error("This chart requires at least 1 measure.");
         }
 
+        // Dynamically create legend name options based on the number of measures
+        var measureNames = queryResponse.fields.measures.map(m => m.name);
+        measureNames.forEach((measure, i) => {
+          if (!this.options[`legendName${i}`]) {
+            this.options[`legendName${i}`] = {
+              label: `Legend Name for ${queryResponse.fields.measures[i].label}`,
+              type: "string",
+              default: queryResponse.fields.measures[i].label_short || queryResponse.fields.measures[i].label,
+              section: "Legend",
+              order: i + 1
+            };
+          }
+        });
+
         // Clear previous content
         d3.select("#animated-line-chart").html("");
 
@@ -57,9 +71,9 @@
         var measures = queryResponse.fields.measures.map(m => m.name); // Array of measures
 
         // Prepare data for single or multiple lines
-        var formattedData = measures.map(measureName => {
+        var formattedData = measures.map((measureName, i) => {
           return {
-            name: measureName, // Name of the series (the measure)
+            name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
             values: data.map(function(row) {
               return {
                 date: new Date(row[dimension].value),
