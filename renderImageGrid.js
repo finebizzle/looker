@@ -22,17 +22,15 @@ function renderNonUniformImageGrid(data, container, config) {
     }
     .grid-item {
       position: relative;
-      display: flex;
-      align-items: center; /* Center the image vertically */
-      justify-content: center; /* Center the image horizontally */
-      overflow: hidden;
+      width: 100%;  /* Make sure it fits the full grid width */
+      height: 100%; /* Make sure it fits the full grid height */
+      overflow: hidden; /* Hide any overflow */
       background-color: #f0f0f0; /* Optional background for empty space */
     }
     .grid-item img {
-      width: auto;  /* Allow the image to scale based on its aspect ratio */
-      height: auto;
-      max-width: 100%; /* Restrict image to fit inside the container's width */
-      max-height: 100%; /* Restrict image to fit inside the container's height */
+      width: 100%;  /* Force the image to take full width of the container */
+      height: 100%; /* Force the image to take full height of the container */
+      object-fit: fill; /* Distort the image to fill the container without cropping */
     }
   `;
   document.head.appendChild(style);
