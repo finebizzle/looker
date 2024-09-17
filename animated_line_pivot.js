@@ -55,18 +55,26 @@
         var measure = queryResponse.fields.measures[0].name;      // Single measure
         var pivots = queryResponse.pivots;                        // Pivoted dimension values
 
+        var isTimeDimension = queryResponse.fields.dimensions[0].is_timeframe;
+
         // Prepare data for multiple lines, one for each pivot value
         var formattedData = pivots.map(function(pivot, i) {
           return {
             name: pivot.label || pivot.key, // Use the pivot label or key as the series name
             values: data.map(function(row) {
               var dimValue = row[dimension1].value;
-              var cell = row[measure][pivot.key];
-              var measureValue = cell ? cell.value : null;
-              var measureRendered = cell ? cell.rendered || measureValue : null;
+              var cell = row[measure][pivot.key] || row[measure][pivot.name];
+
+              if (!cell || cell.value === null || cell.value === undefined) {
+                // If cell is undefined or value is null, skip this data point
+                return null;
+              }
+
+              var measureValue = cell.value;
+              var measureRendered = cell.rendered || measureValue;
 
               // For date dimensions, parse to Date object
-              if (queryResponse.fields.dimensions[0].is_timeframe) {
+              if (isTimeDimension) {
                 dimValue = new Date(dimValue);
               }
 
@@ -75,14 +83,21 @@
                 value: measureValue,
                 rendered: measureRendered
               };
+            }).filter(function(d) {
+              // Filter out null values
+              return d !== null;
             })
           };
+        }).filter(function(series) {
+          // Filter out series with no valid data points
+          return series.values.length > 0;
         });
 
-        // Filter out any series that have no valid data points
-        formattedData = formattedData.filter(function(series) {
-          return series.values.some(function(d) { return d.value !== null && d.value !== undefined; });
-        });
+        // If no data is present, display an error message
+        if (formattedData.length === 0) {
+          this.addError({ title: "No Data", message: "No valid data to display." });
+          return;
+        }
 
         // Set up chart dimensions and scales
         var margin = {top: 10, right: 100, bottom: 30, left: 40},
@@ -97,7 +112,6 @@
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // Determine x scale type based on dimension data type
-        var isTimeDimension = queryResponse.fields.dimensions[0].is_timeframe;
         var xScaleType = isTimeDimension ? d3.scaleTime : d3.scalePoint;
 
         var x;
@@ -114,10 +128,16 @@
             .range([0, width]);
         }
 
+        var yMax = d3.max(formattedData, function(series) {
+          return d3.max(series.values, function(d) { return d.value; });
+        });
+
+        if (yMax === undefined || yMax === null) {
+          yMax = 0; // Default to 0 if no data is present
+        }
+
         var y = d3.scaleLinear()
-          .domain([0, d3.max(formattedData, function(series) {
-            return d3.max(series.values, function(d) { return d.value; });
-          })])
+          .domain([0, yMax])
           .range([height, 0]);
 
         // Add the X Axis
@@ -185,7 +205,7 @@
 
           // Add circles for each data point and the tooltip behavior
           svg.selectAll(".dot-" + index)
-            .data(series.values.filter(function(d) { return d.value !== null && d.value !== undefined; }).map(function(d) {
+            .data(series.values.map(function(d) {
               return { data: d, seriesName: series.name };
             }))
             .enter()
@@ -205,7 +225,7 @@
               tooltip.attr("transform", "translate(" + (event.offsetX + 10) + "," + (event.offsetY - 30) + ")");
             })
             .on("mouseout", function() {
-              tooltip.style("display", "none");
+              tooltip.style("display", "none";
             });
         });
 
