@@ -70,7 +70,7 @@
         });
 
         // Set up chart dimensions and scales
-        var margin = {top: 10, right: 30, bottom: 30, left: 40},
+        var margin = {top: 10, right: 100, bottom: 30, left: 40}, // Adjust right margin for the legend
             width = element.clientWidth - margin.left - margin.right,
             height = element.clientHeight - margin.top - margin.bottom;
 
@@ -143,6 +143,29 @@
           .attr("y", -margin.left + 10)
           .attr("x", -margin.top)
           .text(config.yAxisLabel);
+
+        // Add legend
+        var legend = svg.selectAll(".legend")
+          .data(formattedData)
+          .enter()
+          .append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
+
+        // Add colored rectangles to legend
+        legend.append("rect")
+          .attr("x", width + 20) // Position it to the right of the chart
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", function(d, i) { return color(i); });
+
+        // Add text to legend
+        legend.append("text")
+          .attr("x", width + 45) // Position the text next to the rectangles
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "start")
+          .text(function(d) { return d.name; });
 
       } catch (error) {
         this.addError({title: "Visualization Error", message: error.message});
