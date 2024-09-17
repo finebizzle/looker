@@ -30,7 +30,7 @@ function renderNonUniformImageGrid(data, container, config) {
     .grid-item img {
       width: 100%;  /* Force the image to take full width of the container */
       height: 100%; /* Force the image to take full height of the container */
-      object-fit: contain; /* Fit the full image while maintaining aspect ratio */
+      object-fit: cover; /* Fit the full image while maintaining aspect ratio */
     }
   `;
   document.head.appendChild(style);
