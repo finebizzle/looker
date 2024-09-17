@@ -145,6 +145,19 @@
             .duration(config.animationDuration)
             .ease(d3.easeLinear)
             .attr("stroke-dashoffset", 0);
+
+          // Add value labels
+          svg.selectAll(".label")
+            .data(series.values)
+            .enter()
+            .append("text")
+            .attr("class", "label")
+            .attr("x", function(d) { return x(d.date); })
+            .attr("y", function(d) { return y(d.value) - 5; }) // Adjust position slightly above the data point
+            .attr("text-anchor", "middle")
+            .attr("font-size", "10px")
+            .attr("fill", color(index))
+            .text(function(d) { return d.value; });
         });
 
         // Add labels
