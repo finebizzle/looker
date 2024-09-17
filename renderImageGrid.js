@@ -17,7 +17,7 @@ function renderCustomImageGrid(data, container, config) {
     .grid-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr); /* Four columns in the grid */
-      grid-auto-rows: 200px; /* Base row height */
+      grid-auto-rows: 100px; /* Base row height */
       gap: 10px; /* Gap between images */
     }
     .grid-item {
@@ -27,7 +27,7 @@ function renderCustomImageGrid(data, container, config) {
     .grid-item img {
       width: 100%; /* Image should fill the container horizontally */
       height: 100%; /* Image should fill the container vertically */
-      object-fit: fill; /* Cover the container without distortion */
+      object-fit: cover; /* Cover the container without distortion */
     }
   `;
   document.head.appendChild(style);
