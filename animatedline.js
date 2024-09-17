@@ -177,7 +177,7 @@
             .attr("fill", color(index))
             .on("mouseover", function(event, d) {
               tooltip.style("display", null);
-              tooltipText.text(d.value);
+              tooltipText.text(data);
             })
             .on("mousemove", function(event) {
               tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
