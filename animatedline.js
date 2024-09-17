@@ -58,7 +58,7 @@
               type: "string",
               default: queryResponse.fields.measures[i].label_short || queryResponse.fields.measures[i].label,
               section: "Legend",
-              order: i + 3 // Starting from 3 to avoid conflict with existing options
+              order: i + 3
             };
           }
         });
@@ -146,18 +146,25 @@
             .ease(d3.easeLinear)
             .attr("stroke-dashoffset", 0);
 
-          // Add value labels
-          svg.selectAll(".label")
+          // Add circles for each data point and the tooltip behavior
+          svg.selectAll(".dot-" + index)
             .data(series.values)
             .enter()
-            .append("text")
-            .attr("class", "label")
-            .attr("x", function(d) { return x(d.date); })
-            .attr("y", function(d) { return y(d.value) - 5; }) // Adjust position slightly above the data point
-            .attr("text-anchor", "middle")
-            .attr("font-size", "10px")
+            .append("circle")
+            .attr("class", "dot-" + index)
+            .attr("cx", function(d) { return x(d.date); })
+            .attr("cy", function(d) { return y(d.value); })
+            .attr("r", 4)
             .attr("fill", color(index))
-            .text(function(d) { return d.value; });
+            .on("mouseover", function(event, d) {
+              tooltip.transition().duration(200).style("opacity", 1);
+              tooltip.html(series.name + "<br/>Date: " + d3.timeFormat("%b %d, %Y")(d.date) + "<br/>Value: " + d.value)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+              tooltip.transition().duration(500).style("opacity", 0);
+            });
         });
 
         // Add labels
@@ -196,6 +203,11 @@
           .attr("dy", ".35em")
           .style("text-anchor", "start")
           .text(function(d) { return d.name; });
+
+        // Tooltip definition
+        var tooltip = d3.select("body").append("div")
+          .attr("class", "tooltip")
+          .style("opacity", 0);
 
       } catch (error) {
         this.addError({title: "Visualization Error", message: error.message});
