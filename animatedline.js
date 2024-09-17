@@ -68,18 +68,16 @@
         var dimension = queryResponse.fields.dimensions[0].name;
         var measures = queryResponse.fields.measures.map(m => m.name); // Array of measures
 
-        // Prepare data for single or multiple lines
+          // Prepare data for single or multiple lines
         var formattedData = measures.map((measureName, i) => {
           return {
-            name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
+            name: config[`legendName${i}`] || measureName,
             values: data.map(function(row) {
-              console.log('Row Data:', row);
-              console.log('Dimension Value:', row[dimension]);
-              console.log('Measure Value:', row[measureName]);
+              // Adjusted measure value access
+              var measureValue = row[measureName].value !== undefined ? row[measureName].value : row[measureName];
               return {
-                dimensionValue: new Date(row[dimension].value), // Parse dimension value into Date object
-                value: row[measureName].value
-                
+                dimensionValue: new Date(row[dimension].value),
+                value: measureValue
               };
             })
           };
