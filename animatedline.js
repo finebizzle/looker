@@ -79,8 +79,8 @@
             name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
             values: data.map(function(row) {
               return {
-                dimensionValue: row[dimension].value,  // Correctly access the dimension value
-                measureValue: row[measureName].value   // Correctly access the measure value
+                dimensionValue: row[dimension].value,  // Use dimension value here
+                value: row[measureName].value
               };
             })
           };
@@ -100,12 +100,12 @@
 
         // Define x and y scales
         var x = d3.scaleTime()
-          .domain(d3.extent(data, function(d) { return new Date(row[dimension].value); }))
+          .domain(d3.extent(data, function(d) { return new Date(d[dimension].value); }))
           .range([0, width]);
 
         var y = d3.scaleLinear()
           .domain([0, d3.max(formattedData, function(series) {
-            return d3.max(series.values, function(d) { return d.measureValue; });
+            return d3.max(series.values, function(d) { return d.value; });
           })])
           .range([height, 0]);
 
@@ -124,16 +124,16 @@
         // Line generator function
         var line = d3.line()
           .x(function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to map the x to the dimension value
-          .y(function(d) { return y(d.measureValue); });
+          .y(function(d) { return y(d.value); });
 
-        // Tooltip definition
+                // Tooltip definition
         var tooltip = svg.append("g")
           .attr("class", "tooltip")
           .style("display", "none");
 
         tooltip.append("rect")
-          .attr("width", 120)
-          .attr("height", 50)
+          .attr("width", 150)
+          .attr("height", 60)
           .attr("fill", "lightsteelblue")
           .style("opacity", 0.9)
           .attr("rx", 8)
@@ -145,7 +145,7 @@
           .style("font-size", "12px")
           .style("fill", "#000");
 
-        // Add a line for each series (supports both single and multiple lines)
+        // Add circles for each data point and the tooltip behavior
         formattedData.forEach(function(series, index) {
           var path = svg.append("path")
             .datum(series.values)
@@ -172,12 +172,12 @@
             .append("circle")
             .attr("class", "dot-" + index)
             .attr("cx", function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to use the dimension value
-            .attr("cy", function(d) { return y(d.measureValue); })
+            .attr("cy", function(d) { return y(d.value); })
             .attr("r", 4)
             .attr("fill", color(index))
             .on("mouseover", function(event, d) {
               tooltip.style("display", null);
-              tooltipText.text(series.name + ": " + d.measureValue + "\nDimension: " + d.dimensionValue);
+              tooltipText.html(`${series.name}<br>Dimension: ${d.dimensionValue}<br>Value: ${d.value}`);
             })
             .on("mousemove", function(event) {
               tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
