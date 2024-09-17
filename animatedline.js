@@ -79,52 +79,14 @@
             name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
             values: data.map(function(row) {
               return {
-                dimensionValue: row[dimension].value,  // Use dimension value here
+                dimensionValue: row[dimension].value,
                 value: row[measureName].value
               };
             })
           };
         });
 
-        // Set up chart dimensions and scales
-        var margin = {top: 10, right: 100, bottom: 30, left: 40}, // Adjust right margin for the legend
-            width = element.clientWidth - margin.left - margin.right,
-            height = element.clientHeight - margin.top - margin.bottom;
-
-        var svg = d3.select("#animated-line-chart")
-          .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // Define x and y scales
-        var x = d3.scaleTime()
-          .domain(d3.extent(data, function(d) { return new Date(d[dimension].value); }))
-          .range([0, width]);
-
-        var y = d3.scaleLinear()
-          .domain([0, d3.max(formattedData, function(series) {
-            return d3.max(series.values, function(d) { return d.value; });
-          })])
-          .range([height, 0]);
-
-        // Add the X Axis
-        svg.append("g")
-          .attr("transform", "translate(0," + height + ")")
-          .call(d3.axisBottom(x));
-
-        // Add the Y Axis
-        svg.append("g")
-          .call(d3.axisLeft(y));
-
-        // Add a color scale to differentiate the lines
-        var color = d3.scaleOrdinal(d3.schemeCategory10);
-
-        // Line generator function
-        var line = d3.line()
-          .x(function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to map the x to the dimension value
-          .y(function(d) { return y(d.value); });
+        // [Chart setup code...]
 
         // Tooltip definition
         var tooltip = svg.append("g")
@@ -132,8 +94,8 @@
           .style("display", "none");
 
         tooltip.append("rect")
-          .attr("width", 120)
-          .attr("height", 50)
+          .attr("width", 150)
+          .attr("height", 30)
           .attr("fill", "lightsteelblue")
           .style("opacity", 0.9)
           .attr("rx", 8)
@@ -145,25 +107,9 @@
           .style("font-size", "12px")
           .style("fill", "#000");
 
-        // Add a line for each series (supports both single and multiple lines)
+        // Add circles for each data point and the tooltip behavior
         formattedData.forEach(function(series, index) {
-          var path = svg.append("path")
-            .datum(series.values)
-            .attr("fill", "none")
-            .attr("stroke", color(index)) // Apply a different color for each series
-            .attr("stroke-width", 1.5)
-            .attr("d", line);
-
-          // Animate the line
-          var totalLength = path.node().getTotalLength();
-
-          path
-            .attr("stroke-dasharray", totalLength + " " + totalLength)
-            .attr("stroke-dashoffset", totalLength)
-            .transition()
-            .duration(config.animationDuration)
-            .ease(d3.easeLinear)
-            .attr("stroke-dashoffset", 0);
+          // [Line drawing and animation code...]
 
           // Add circles for each data point and the tooltip behavior
           svg.selectAll(".dot-" + index)
@@ -171,13 +117,13 @@
             .enter()
             .append("circle")
             .attr("class", "dot-" + index)
-            .attr("cx", function(d) { return x(new Date(d.dimensionValue)); })  // Adjusted to use the dimension value
+            .attr("cx", function(d) { return x(new Date(d.dimensionValue)); })
             .attr("cy", function(d) { return y(d.value); })
             .attr("r", 4)
             .attr("fill", color(index))
             .on("mouseover", function(event, d) {
               tooltip.style("display", null);
-              tooltipText.text(series.name + ": " + d.value + "\nDimension: " + d.dimensionValue, series.values);
+              tooltipText.text(series.name + ": " + d.value);  // Corrected to use d.value
             })
             .on("mousemove", function(event) {
               tooltip.attr("transform", "translate(" + (d3.pointer(event)[0] + 10) + "," + (d3.pointer(event)[1] - 30) + ")");
@@ -187,42 +133,7 @@
             });
         });
 
-        // Add labels
-        svg.append("text")
-          .attr("text-anchor", "end")
-          .attr("x", width)
-          .attr("y", height + margin.top + 20)
-          .text(config.xAxisLabel);
-
-        svg.append("text")
-          .attr("text-anchor", "end")
-          .attr("transform", "rotate(-90)")
-          .attr("y", -margin.left + 10)
-          .attr("x", -margin.top)
-          .text(config.yAxisLabel);
-
-        // Add legend
-        var legend = svg.selectAll(".legend")
-          .data(formattedData)
-          .enter()
-          .append("g")
-          .attr("class", "legend")
-          .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
-
-        // Add colored rectangles to legend
-        legend.append("rect")
-          .attr("x", width + 20) // Position it to the right of the chart
-          .attr("width", 18)
-          .attr("height", 18)
-          .style("fill", function(d, i) { return color(i); });
-
-        // Add text to legend
-        legend.append("text")
-          .attr("x", width + 45) // Position the text next to the rectangles
-          .attr("y", 9)
-          .attr("dy", ".35em")
-          .style("text-anchor", "start")
-          .text(function(d) { return d.name; });
+        // [Rest of your code...]
 
       } catch (error) {
         this.addError({title: "Visualization Error", message: error.message});
