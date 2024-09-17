@@ -102,11 +102,19 @@
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // Determine x scale type based on dimension data type
-        var xScaleType = queryResponse.fields.dimensions[0].is_timeframe ? d3.scaleTime : d3.scalePoint;
+        var isTimeDimension = queryResponse.fields.dimensions[0].is_timeframe;
+        var xScaleType = isTimeDimension ? d3.scaleTime : d3.scalePoint;
 
-        var x = xScaleType()
-          .domain(formattedData[0].values.map(function(d) { return d.dimensionValue; }))
-          .range([0, width]);
+        var x;
+        if (isTimeDimension) {
+          x = xScaleType()
+            .domain(d3.extent(formattedData[0].values, function(d) { return d.dimensionValue; }))
+            .range([0, width]);
+        } else {
+          x = xScaleType()
+            .domain(formattedData[0].values.map(function(d) { return d.dimensionValue; }))
+            .range([0, width]);
+        }
 
         var y = d3.scaleLinear()
           .domain([0, d3.max(formattedData, function(series) {
@@ -116,7 +124,8 @@
 
         // Add the X Axis
         var xAxis = d3.axisBottom(x);
-        if (xScaleType === d3.scalePoint) {
+
+        if (!isTimeDimension) {
           xAxis.tickFormat(function(d) { return d; });
         }
 
