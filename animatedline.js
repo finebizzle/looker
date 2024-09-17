@@ -92,7 +92,7 @@
         });
 
         // Set up chart dimensions and scales
-        var margin = {top: 10, right: 100, bottom: 30, left: 40},
+        var margin = {top: 20, right: 100, bottom: 50, left: 60},
             width = element.clientWidth - margin.left - margin.right,
             height = element.clientHeight - margin.top - margin.bottom;
 
@@ -124,6 +124,27 @@
           })])
           .range([height, 0]);
 
+        // Add Y grid lines
+        svg.append("g")
+          .attr("class", "grid")
+          .call(d3.axisLeft(y)
+            .tickSize(-width)
+            .tickFormat(""))
+          .selectAll("line")
+          .style("stroke", "#ccc")
+          .style("stroke-dasharray", "2,2");
+
+        // Add X grid lines
+        svg.append("g")
+          .attr("class", "grid")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x)
+            .tickSize(-height)
+            .tickFormat(""))
+          .selectAll("line")
+          .style("stroke", "#ccc")
+          .style("stroke-dasharray", "2,2");
+
         // Add the X Axis
         var xAxis = d3.axisBottom(x);
 
@@ -132,12 +153,23 @@
         }
 
         svg.append("g")
+          .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
-          .call(xAxis);
+          .call(xAxis)
+          .selectAll("text")
+          .style("font-size", "12px");
 
         // Add the Y Axis
         svg.append("g")
-          .call(d3.axisLeft(y));
+          .attr("class", "y axis")
+          .call(d3.axisLeft(y))
+          .selectAll("text")
+          .style("font-size", "12px");
+
+        // Style the axis lines
+        svg.selectAll(".axis path, .axis line")
+          .style("stroke", "#000")
+          .style("stroke-width", "1px");
 
         // Add a color scale to differentiate the lines
         var color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -172,7 +204,7 @@
             .datum(series.values)
             .attr("fill", "none")
             .attr("stroke", color(index))
-            .attr("stroke-width", 1.5)
+            .attr("stroke-width", 2)
             .attr("d", line);
 
           // Animate the line
@@ -212,18 +244,21 @@
             });
         });
 
-        // Add labels
+        // Add X-axis label
         svg.append("text")
           .attr("text-anchor", "end")
           .attr("x", width)
-          .attr("y", height + margin.top + 20)
+          .attr("y", height + margin.top + 40)
+          .style("font-size", "14px")
           .text(config.xAxisLabel);
 
+        // Add Y-axis label
         svg.append("text")
           .attr("text-anchor", "end")
           .attr("transform", "rotate(-90)")
-          .attr("y", -margin.left + 10)
+          .attr("y", -margin.left + 20)
           .attr("x", -margin.top)
+          .style("font-size", "14px")
           .text(config.yAxisLabel);
 
         // Add legend
@@ -247,6 +282,7 @@
           .attr("y", 9)
           .attr("dy", ".35em")
           .style("text-anchor", "start")
+          .style("font-size", "12px")
           .text(function(d) { return d.name; });
 
       } catch (error) {
