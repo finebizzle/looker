@@ -58,10 +58,13 @@
               type: "string",
               default: queryResponse.fields.measures[i].label_short || queryResponse.fields.measures[i].label,
               section: "Legend",
-              order: i + 1
+              order: i + 3 // Starting from 3 to avoid conflict with existing options
             };
           }
         });
+
+        // Ensure the options are updated and re-rendered in Looker
+        this.trigger("registerOptions", this.options);  // Tell Looker to re-render the options
 
         // Clear previous content
         d3.select("#animated-line-chart").html("");
