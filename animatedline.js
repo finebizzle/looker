@@ -73,9 +73,13 @@
           return {
             name: config[`legendName${i}`] || measureName, // Use the custom legend name from the config
             values: data.map(function(row) {
+              console.log('Row Data:', row);
+              console.log('Dimension Value:', row[dimension]);
+              console.log('Measure Value:', row[measureName]);
               return {
                 dimensionValue: new Date(row[dimension].value), // Parse dimension value into Date object
                 value: row[measureName].value
+                
               };
             })
           };
