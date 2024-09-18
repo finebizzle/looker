@@ -27,6 +27,8 @@ looker.plugins.visualizations.add({
     const requiredDimensions = 6; // We need 6 dimensions for the visualization to work
     const requiredMeasures = 1; // We need at least 1 measure
 
+    console.log("Query Response: ", queryResponse); // Debug: Check queryResponse object
+
     if (queryResponse.fields.dimensions.length < requiredDimensions || queryResponse.fields.measures.length < requiredMeasures) {
       // Display an error message
       const errorMessage = `
@@ -49,6 +51,9 @@ looker.plugins.visualizations.add({
       return;
     }
 
+    // Debugging: Check data received
+    console.log("Data: ", data);
+
     // Proceed with rendering if dimensions and measures are sufficient
     const customMeasureName = config.customMeasureName || queryResponse.fields.measures[0].name.replace(/_/g, ' ').split(".").pop().toLowerCase().replace(/(?:^|\s)[a-z]/g, (m) => m.toUpperCase());
 
@@ -63,8 +68,11 @@ looker.plugins.visualizations.add({
       const playerImgUrl = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[5].name]);
       const measureValue = LookerCharts.Utils.textForCell(row[queryResponse.fields.measures[0].name]);
 
+      // Debugging: Log values to ensure proper extraction
+      console.log("Player Name:", playerName, "Player Logo URL:", playerLogoUrl, "Primary Color:", primaryColor, "Secondary Color:", secondaryColor);
+
       // Add card to container
-      container.html(`
+      const cardHTML = `
         <style>
           .card-container {
             text-transform: uppercase;
@@ -154,7 +162,9 @@ looker.plugins.visualizations.add({
           <img class="player" src="${playerImgUrl}" />
           <figcaption class="name-${playerName}">${playerNameHtml}</figcaption>
         </figure>
-      `);
+      `;
+
+      container.node().insertAdjacentHTML('beforeend', cardHTML);
     });
 
     // Edit Looker tile title if the measureTitle option is enabled
