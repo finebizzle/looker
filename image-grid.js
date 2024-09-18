@@ -1,99 +1,52 @@
-function renderNonUniformImageGrid(data, container, config) {
+function renderImageGrid(data, container, config) {
+  // Define the dimensions and properties of the image grid
+  const imageWidth = 90;
+  const imageHeight = 90;
+  const imagesPerRow = 20;
+  const spacing = 10;
   const maxImages = config.maxImages || 500; // Maximum number of images to display
-
-  // Filter and truncate data to include only valid images
-  const truncatedData = data
-    .filter(d => d[Object.keys(d)[0]] && d[Object.keys(d)[0]].value)
-    .slice(0, maxImages);
-
-  // Create a container for the image grid with CSS Grid layout
+  // Take the first `maxImages` elements from the data array that have images
+  const truncatedData = data.filter(d => d[Object.keys(d)[2]] && d[Object.keys(d)[2]].value).slice(0, maxImages);
+  // Calculate the total number of rows based on the truncated data length and images per row
+  const numRows = Math.ceil(truncatedData.length / imagesPerRow);
+  // Calculate the number of images to display in the last row
+  const imagesInLastRow = truncatedData.length % imagesPerRow || imagesPerRow;
+  // Create a container for the image grid
   const gridContainer = container.append('div')
-    .attr('class', 'grid-container');
-
-  // Add CSS styles for the grid and images
-  const style = document.createElement('style');
-  style.type = 'text/css';
-  style.innerHTML = `
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr); /* Adjust columns as needed */
-      grid-auto-rows: 100px; /* Base row height */
-      gap: 15px; /* Gap between images */
-    }
-    .grid-item {
-      position: relative;
-      width: 100%;  /* Make sure it fits the full grid width */
-      height: 100%; /* Make sure it fits the full grid height */
-      overflow: hidden; /* Hide any overflow */
-      background-color: #f0f0f0; /* Optional background for empty space */
-    }
-    .grid-item img {
-      width: 100%;  /* Force the image to take full width of the container */
-      height: 100%; /* Force the image to take full height of the container */
-      object-fit: fill; /* Distort the image to fill the container without cropping */
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Predefined grid spans for non-uniform layout (similar to your image)
-  const predefinedGridSpans = [
-    { colSpan: 1, rowSpan: 1 },
-    { colSpan: 1, rowSpan: 1 },
-    { colSpan: 2, rowSpan: 1 },
-    { colSpan: 1, rowSpan: 1 },
-    { colSpan: 1, rowSpan: 1 },
-    { colSpan: 2, rowSpan: 2 },
-    { colSpan: 1, rowSpan: 1 },
-    { colSpan: 2, rowSpan: 1 },
-    { colSpan: 1, rowSpan: 1 },
-    { colSpan: 1, rowSpan: 1 },
-  ];
-
+    .style('display', 'flex')
+    .style('flex-wrap', 'wrap');
   // Loop through the truncated data and add image elements to the grid container
   truncatedData.forEach((d, index) => {
     const imageURL = d[Object.keys(d)[0]].value;
-    const imageAlt = d[Object.keys(d)[1]]?.label || 'Image';
-    const gridSpan = predefinedGridSpans[index % predefinedGridSpans.length]; // Cycle through predefined spans
-
+    const imageAlt = d[Object.keys(d)[1]].label || 'Image'; // Use image label as alt text
     const imageContainer = gridContainer.append('div')
-      .attr('class', 'grid-item')
-      .style('grid-column', `span ${gridSpan.colSpan}`)
-      .style('grid-row', `span ${gridSpan.rowSpan}`);
+      .style('width', `${imageWidth}px`)
+      .style('height', `${imageHeight}px`)
+      .style('margin', `${spacing}px`)
+      .style('background-color', '#eee')
+      .style('background-size', 'cover')
+      .style('background-position', 'center')
+      .style('background-image', `url(${imageURL})`)
+      ;
+      .style('background-image', `url(${imageURL})`);
 
+    // Add the alt attribute to the image container
     imageContainer.append('img')
-      .attr('src', imageURL)
-      .attr('alt', imageAlt);
+      .attr('alt', 'pulled ' + imageAlt);
+    // Add overlay text to the image container
+    imageContainer.append('div')
+      .style('position', 'absolute')
+      .style('top', 0)
+      .style('left', 0)
+      .style('width', '100%')
+      .style('height', '100%')
+      .style('display', 'flex')
+      .style('justify-content', 'center')
+      .style('align-items', 'center')
+      .style('background-color', 'rgba(0, 0, 0, 0.5)') // Overlay background color
+      .style('color', '#000')
+      .style('font-size', '14px')
+      .style('text-align', 'center')
+      .text(imageAlt); // Set the overlay text
+
   });
-}
-
-const vis = {
-  id: 'non-uniform-image-grid',
-  label: 'Non-Uniform Image Grid',
-  options: {
-    maxImages: {
-      label: 'Max Images',
-      default: 500,
-      type: 'number',
-      display: 'text',
-      section: 'Data',
-      placeholder: 'Enter the maximum number of images to display',
-    },
-  },
-  create(element, config) {
-    element.innerHTML = '<div class="image-grid"></div>';
-  },
-  update(data, element, config, context) {
-    const container = d3.select(element).select('.image-grid');
-    container.selectAll('*').remove(); // Clear previous content
-
-    try {
-      // Render the non-uniform image grid
-      renderNonUniformImageGrid(data, container, config);
-    } catch (error) {
-      console.error('Error occurred during update:', error);
-      element.innerHTML = '<div class="error-message">An error occurred while rendering the visualization.</div>';
-    }
-  },
-};
-
-looker.plugins.visualizations.add(vis);
