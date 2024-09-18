@@ -20,10 +20,36 @@ looker.plugins.visualizations.add({
     element.innerHTML = '<div class="card-container"></div>';
   },
   updateAsync(data, element, config, queryResponse, details, doneRendering) {
-    // Clear any previous contents
     const container = d3.select(element).select('.card-container');
     container.html(""); // Clear container
 
+    // Check if the necessary dimensions and measures are available
+    const requiredDimensions = 6; // We need 6 dimensions for the visualization to work
+    const requiredMeasures = 1; // We need at least 1 measure
+
+    if (queryResponse.fields.dimensions.length < requiredDimensions || queryResponse.fields.measures.length < requiredMeasures) {
+      // Display an error message
+      const errorMessage = `
+        <div style="color: red; font-weight: bold; padding: 10px;">
+          <p>Error: This visualization requires at least 6 dimensions and 1 measure to display correctly.</p>
+          <p>Please ensure your query includes:</p>
+          <ul>
+            <li>Player Name (Dimension)</li>
+            <li>Player Logo URL (Dimension)</li>
+            <li>Primary Team Color (Dimension)</li>
+            <li>Secondary Team Color (Dimension)</li>
+            <li>Tertiary Team Color (Dimension)</li>
+            <li>Player Image URL (Dimension)</li>
+            <li>A numerical measure (Measure)</li>
+          </ul>
+        </div>
+      `;
+      container.html(errorMessage);
+      doneRendering();
+      return;
+    }
+
+    // Proceed with rendering if dimensions and measures are sufficient
     const customMeasureName = config.customMeasureName || queryResponse.fields.measures[0].name.replace(/_/g, ' ').split(".").pop().toLowerCase().replace(/(?:^|\s)[a-z]/g, (m) => m.toUpperCase());
 
     // Loop through data and create each card
