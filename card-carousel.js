@@ -84,7 +84,7 @@ looker.plugins.visualizations.add({
       const measureValue = LookerCharts.Utils.textForCell(row[measureDimension]);
 
       return `
-        <div class="card-${playerName}" style="display:none; flex-direction:column; align-items:center;">
+        <div class="card-${playerName}" style="display:flex; flex-direction:column; align-items:center;">
           <style>
             .card-${playerName} {
               width: 243px;
