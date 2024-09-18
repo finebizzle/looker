@@ -112,7 +112,7 @@ looker.plugins.visualizations.add({
             }
             .card-${playerName} .player {
               width: 100%;
-              height: 70%;
+              height: 85%;
               object-fit: cover;
             }
             .card-${playerName} figcaption {
