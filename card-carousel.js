@@ -1,6 +1,6 @@
 looker.plugins.visualizations.add({
-  id: "single_baseball_card",
-  label: "Single Baseball Card",
+  id: "baseball_card_carousel",
+  label: "Baseball Card Carousel with Controls",
   options: {
     primaryColor: {
       label: "Primary Team Color",
@@ -31,16 +31,28 @@ looker.plugins.visualizations.add({
     }
   },
   create(element, config) {
-    // Create a container element for the card
     const container = document.createElement('div');
-    container.className = 'card-container';
+    container.className = 'carousel-container';
+    container.innerHTML = `
+      <div class="carousel-wrapper" style="position: relative; display: flex; justify-content: center; align-items: center;">
+        <button class="carousel-prev" style="position: absolute; left: 10px; background-color: rgba(0, 0, 0, 0.3); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;">&#8249;</button>
+        <div class="carousel-cards" style="display: flex; justify-content: center; align-items: center; width: 100%;"></div>
+        <button class="carousel-next" style="position: absolute; right: 10px; background-color: rgba(0, 0, 0, 0.3); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;">&#8250;</button>
+      </div>
+      <div class="carousel-dots" style="display: flex; justify-content: center; align-items: center; padding-top: 10px;"></div>
+    `;
     element.appendChild(container);
   },
   updateAsync(data, element, config, queryResponse, details, doneRendering) {
-    const cardContainer = element.querySelector('.card-container');
-    cardContainer.innerHTML = ""; // Clear the container
+    const cardContainer = element.querySelector('.carousel-cards');
+    const prevButton = element.querySelector('.carousel-prev');
+    const nextButton = element.querySelector('.carousel-next');
+    const dotsContainer = element.querySelector('.carousel-dots');
+    let currentIndex = 0;
 
-    // Check for the minimum number of dimensions and measures
+    cardContainer.innerHTML = ""; // Clear the container
+    dotsContainer.innerHTML = ""; // Clear the dots container
+
     if (queryResponse.fields.dimensions.length < 3 || queryResponse.fields.measures.length < 1) {
       const errorMessage = `
         <div style="color: red; font-weight: bold; padding: 10px;">
@@ -63,88 +75,96 @@ looker.plugins.visualizations.add({
     const secondaryColor = config.secondaryColor || '#ffffff';
     const tertiaryColor = config.tertiaryColor || '#C8102E';
 
-    // Assuming we just want to display the first card from the dataset
-    const row = data[0];
-
-    const playerName = LookerCharts.Utils.textForCell(row[playerNameDimension]).replace(/\s+/g, '-').replace(/\./g, '');
-    const playerNameHtml = LookerCharts.Utils.htmlForCell(row[playerNameDimension]);
-    const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoDimension]);
-    const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageDimension]);
-    const measureValue = LookerCharts.Utils.textForCell(row[measureDimension]);
-
-    // Build the single card HTML
-    const cardHTML = `
-      <style>
-        .card-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 100%;
-          height: 100%;
-        }
-
-        .card-${playerName} {
-          width: 243px;
-          height: 350px;
-          border: 8px solid ${primaryColor};
-          border-radius: 10px;
-          background-color: ${secondaryColor};
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          text-align: center;
-          overflow: hidden;
-          position: relative;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .card-${playerName} .team_logo {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background-color: ${primaryColor};
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          border: 3px solid ${secondaryColor};
-          object-fit: contain;
-        }
-
-        .card-${playerName} .player {
-          width: 100%;
-          height: 70%;
-          object-fit: cover;
-        }
-
-        .card-${playerName} figcaption {
-          background-color: ${primaryColor};
-          color: ${secondaryColor};
-          font-family: 'Roboto', sans-serif;
-          font-weight: bold;
-          padding: 10px;
-          text-transform: capitalize;
-          border-top: 2px solid ${tertiaryColor};
-        }
-      </style>
-
-      <div class="card-${playerName}">
-        <img class="team_logo" src="${playerLogoUrl}" alt="Team Logo" />
-        <img class="player" src="${playerImgUrl}" alt="${playerNameHtml}" />
-        <figcaption>${playerNameHtml}</figcaption>
-      </div>
-    `;
-
-    // Insert the card HTML into the container
-    cardContainer.innerHTML = cardHTML;
-
-    if (config.measureTitle) {
-      const measureName = queryResponse.fields.measures[0].label;
+    // Create cards array to hold all cards
+    const cards = data.map(row => {
+      const playerName = LookerCharts.Utils.textForCell(row[playerNameDimension]).replace(/\s+/g, '-').replace(/\./g, '');
+      const playerNameHtml = LookerCharts.Utils.htmlForCell(row[playerNameDimension]);
+      const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoDimension]);
+      const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageDimension]);
       const measureValue = LookerCharts.Utils.textForCell(row[measureDimension]);
 
-      const titles = document.getElementsByClassName("looker-vis-context-title-link");
-      if (titles.length > 0) {
-        titles[0].innerText = `${measureName}: ${measureValue}`;
+      return `
+        <div class="card-${playerName}" style="display:none; flex-direction:column; align-items:center;">
+          <style>
+            .card-${playerName} {
+              width: 243px;
+              height: 350px;
+              border: 8px solid ${primaryColor};
+              border-radius: 10px;
+              background-color: ${secondaryColor};
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              text-align: center;
+              overflow: hidden;
+              position: relative;
+              display: flex;
+              flex-direction: column;
+            }
+            .card-${playerName} .team_logo {
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              background-color: ${primaryColor};
+              position: absolute;
+              top: 10px;
+              left: 10px;
+              border: 3px solid ${secondaryColor};
+              object-fit: contain;
+            }
+            .card-${playerName} .player {
+              width: 100%;
+              height: 70%;
+              object-fit: cover;
+            }
+            .card-${playerName} figcaption {
+              background-color: ${primaryColor};
+              color: ${secondaryColor};
+              font-family: 'Roboto', sans-serif;
+              font-weight: bold;
+              padding: 10px;
+              text-transform: capitalize;
+              border-top: 2px solid ${tertiaryColor};
+            }
+          </style>
+          <img class="team_logo" src="${playerLogoUrl}" alt="Team Logo" />
+          <img class="player" src="${playerImgUrl}" alt="${playerNameHtml}" />
+          <figcaption>${playerNameHtml}</figcaption>
+        </div>
+      `;
+    });
+
+    // Create dot indicators based on the number of cards
+    for (let i = 0; i < cards.length; i++) {
+      const dot = document.createElement('span');
+      dot.style.cssText = `height: 12px; width: 12px; margin: 0 5px; background-color: ${i === currentIndex ? '#FF5733' : '#C0C0C0'}; border-radius: 50%; display: inline-block; cursor: pointer;`;
+      dotsContainer.appendChild(dot);
+      dot.addEventListener('click', () => showCard(i));
+    }
+
+    // Show the card at the given index
+    function showCard(index) {
+      cardContainer.innerHTML = cards[index]; // Insert the new card into the container
+      currentIndex = index;
+
+      // Update the dot indicators to reflect the current card
+      const dots = dotsContainer.children;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].style.backgroundColor = i === currentIndex ? '#FF5733' : '#C0C0C0';
       }
     }
+
+    // Show the first card initially
+    showCard(0);
+
+    // Handle next and previous clicks
+    prevButton.onclick = () => {
+      const newIndex = (currentIndex - 1 + cards.length) % cards.length; // Wrap backward
+      showCard(newIndex);
+    };
+
+    nextButton.onclick = () => {
+      const newIndex = (currentIndex + 1) % cards.length; // Wrap forward
+      showCard(newIndex);
+    };
 
     doneRendering(); // Signal rendering completion
   }
