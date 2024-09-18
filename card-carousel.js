@@ -31,12 +31,11 @@ looker.plugins.visualizations.add({
     }
   },
   create(element, config) {
-    // Create a container element for the carousel
     const container = document.createElement('div');
     container.className = 'carousel-container';
     container.innerHTML = `
       <button class="carousel-prev" style="position:absolute; left: 0;">Previous</button>
-      <div class="carousel-cards" style="display:flex; justify-content:center; align-items:center;"></div>
+      <div class="carousel-cards" style="display:flex; justify-content:center; align-items:center; width:100%;"></div>
       <button class="carousel-next" style="position:absolute; right: 0;">Next</button>
     `;
     element.appendChild(container);
@@ -130,7 +129,7 @@ looker.plugins.visualizations.add({
 
     // Show the first card by default
     function showCard(index) {
-      cardContainer.innerHTML = cards[index];
+      cardContainer.innerHTML = cards[index]; // Clear the container and insert the new card
       currentIndex = index;
     }
 
