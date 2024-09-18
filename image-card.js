@@ -13,10 +13,31 @@ looker.plugins.visualizations.add({
       type: "boolean",
       default: false,
       order: 1
+    },
+    primaryColor: {
+      label: "Primary Team Color",
+      type: "string",
+      display: "color",
+      default: "#FF0000", // Default color red
+      order: 3
+    },
+    secondaryColor: {
+      label: "Secondary Team Color",
+      type: "string",
+      display: "color",
+      default: "#00FF00", // Default color green
+      order: 4
+    },
+    tertiaryColor: {
+      label: "Tertiary Team Color",
+      type: "string",
+      display: "color",
+      default: "#0000FF", // Default color blue
+      order: 5
     }
   },
   create(element, config) {
-    // Create a container element for the card using native JS
+    // Create a container element for the card
     const container = document.createElement('div');
     container.className = 'card-container';
     element.appendChild(container);
@@ -25,14 +46,10 @@ looker.plugins.visualizations.add({
     const container = element.querySelector('.card-container');
     container.innerHTML = ""; // Clear container
 
-    // Check if the necessary dimensions and measures are available
     const requiredDimensions = 6; // We need 6 dimensions for the visualization to work
     const requiredMeasures = 1; // We need at least 1 measure
 
-    console.log("Query Response: ", queryResponse); // Debug: Check queryResponse object
-
     if (queryResponse.fields.dimensions.length < requiredDimensions || queryResponse.fields.measures.length < requiredMeasures) {
-      // Display an error message
       const errorMessage = `
         <div style="color: red; font-weight: bold; padding: 10px;">
           <p>Error: This visualization requires at least 6 dimensions and 1 measure to display correctly.</p>
@@ -40,9 +57,6 @@ looker.plugins.visualizations.add({
           <ul>
             <li>Player Name (Dimension)</li>
             <li>Player Logo URL (Dimension)</li>
-            <li>Primary Team Color (Dimension)</li>
-            <li>Secondary Team Color (Dimension)</li>
-            <li>Tertiary Team Color (Dimension)</li>
             <li>Player Image URL (Dimension)</li>
             <li>A numerical measure (Measure)</li>
           </ul>
@@ -53,27 +67,21 @@ looker.plugins.visualizations.add({
       return;
     }
 
-    // Debugging: Check data received
-    console.log("Data: ", data);
-
-    // Proceed with rendering if dimensions and measures are sufficient
     const customMeasureName = config.customMeasureName || queryResponse.fields.measures[0].name.replace(/_/g, ' ').split(".").pop().toLowerCase().replace(/(?:^|\s)[a-z]/g, (m) => m.toUpperCase());
+
+    // Colors from the configuration options
+    const primaryColor = config.primaryColor || '#FF0000';
+    const secondaryColor = config.secondaryColor || '#00FF00';
+    const tertiaryColor = config.tertiaryColor || '#0000FF';
 
     // Loop through data and create each card
     data.forEach(row => {
       const playerName = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[0].name]).replace(/\s+/g, '-').replace(/\./g,'');
       const playerNameHtml = LookerCharts.Utils.htmlForCell(row[queryResponse.fields.dimensions[0].name]);
       const playerLogoUrl = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[1].name]);
-      const primaryColor = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[2].name]);
-      const secondaryColor = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[3].name]);
-      const tertiaryColor = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[4].name]);
       const playerImgUrl = LookerCharts.Utils.textForCell(row[queryResponse.fields.dimensions[5].name]);
       const measureValue = LookerCharts.Utils.textForCell(row[queryResponse.fields.measures[0].name]);
 
-      // Debugging: Log values to ensure proper extraction
-      console.log("Player Name:", playerName, "Player Logo URL:", playerLogoUrl, "Primary Color:", primaryColor, "Secondary Color:", secondaryColor);
-
-      // Add card to container
       const cardHTML = `
         <style>
           .card-container {
@@ -169,7 +177,6 @@ looker.plugins.visualizations.add({
       container.insertAdjacentHTML('beforeend', cardHTML);
     });
 
-    // Edit Looker tile title if the measureTitle option is enabled
     if (config.measureTitle) {
       const measureName = customMeasureName;
       const measureValue = LookerCharts.Utils.textForCell(data[0][queryResponse.fields.measures[0].name]);
