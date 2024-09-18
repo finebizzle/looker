@@ -48,5 +48,4 @@ function renderImageGrid(data, container, config) {
       .style('font-size', '14px')
       .style('text-align', 'center')
       .text(imageAlt); // Set the overlay text
-
   });
