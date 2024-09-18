@@ -16,12 +16,14 @@ looker.plugins.visualizations.add({
     }
   },
   create(element, config) {
-    // Create a container element for the card
-    element.innerHTML = '<div class="card-container"></div>';
+    // Create a container element for the card using native JS
+    const container = document.createElement('div');
+    container.className = 'card-container';
+    element.appendChild(container);
   },
   updateAsync(data, element, config, queryResponse, details, doneRendering) {
-    const container = d3.select(element).select('.card-container');
-    container.html(""); // Clear container
+    const container = element.querySelector('.card-container');
+    container.innerHTML = ""; // Clear container
 
     // Check if the necessary dimensions and measures are available
     const requiredDimensions = 6; // We need 6 dimensions for the visualization to work
@@ -46,7 +48,7 @@ looker.plugins.visualizations.add({
           </ul>
         </div>
       `;
-      container.html(errorMessage);
+      container.innerHTML = errorMessage;
       doneRendering();
       return;
     }
@@ -164,7 +166,7 @@ looker.plugins.visualizations.add({
         </figure>
       `;
 
-      container.node().insertAdjacentHTML('beforeend', cardHTML);
+      container.insertAdjacentHTML('beforeend', cardHTML);
     });
 
     // Edit Looker tile title if the measureTitle option is enabled
