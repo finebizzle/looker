@@ -6,21 +6,21 @@ looker.plugins.visualizations.add({
       label: "Primary Team Color",
       type: "string",
       display: "color",
-      default: "#001F5C", // Default navy blue color similar to the Yankees
+      default: "#001F5C", // Default navy blue color
       order: 1
     },
     secondaryColor: {
       label: "Secondary Team Color",
       type: "string",
       display: "color",
-      default: "#ffffff", // White color
+      default: "#ffffff", // Default white color
       order: 2
     },
     tertiaryColor: {
       label: "Tertiary Team Color",
       type: "string",
       display: "color",
-      default: "#C8102E", // Default red color for the logo
+      default: "#C8102E", // Default red color
       order: 3
     },
     measureTitle: {
@@ -39,6 +39,7 @@ looker.plugins.visualizations.add({
     const container = element.querySelector('.card-container');
     container.innerHTML = ""; // Clear the container
 
+    // Check for the minimum number of dimensions and measures
     if (queryResponse.fields.dimensions.length < 3 || queryResponse.fields.measures.length < 1) {
       const errorMessage = `
         <div style="color: red; font-weight: bold; padding: 10px;">
@@ -65,10 +66,11 @@ looker.plugins.visualizations.add({
     data.forEach(row => {
       const playerName = LookerCharts.Utils.textForCell(row[playerNameDimension]).replace(/\s+/g, '-').replace(/\./g, '');
       const playerNameHtml = LookerCharts.Utils.htmlForCell(row[playerNameDimension]);
-      const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoDimension]);
-      const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageDimension]);
+      const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoDimension]); // Ensure we get the URL as a string
+      const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageDimension]); // Ensure we get the URL as a string
       const measureValue = LookerCharts.Utils.textForCell(row[measureDimension]);
 
+      // Build the card HTML
       const cardHTML = `
         <style>
           .card-container {
@@ -100,6 +102,7 @@ looker.plugins.visualizations.add({
             border-radius: 50%;
             border: 3px solid ${secondaryColor};
             background-color: ${primaryColor};
+            object-fit: contain;
           }
 
           .card-${playerName} .player {
