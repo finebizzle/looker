@@ -1,251 +1,172 @@
-function renderImageTable(data, container, config) {
-  // Create a container for the image table
-  const tableContainer = container.append('table')
-    .style('border-collapse', 'collapse');
-
-  // Extract the unique statement months from the data objects
-  // const statementMonths = Array.from(new Set(data.map(d => d['content_partner.statement_month'].value)));
-
-    const statementMonths = Array.from(new Set(data.map(d => d[Object.keys(d)[1]].value)));
-
-  // Extract the unique rank_product_id values
-  // const uniqueRankProductIds = Array.from(new Set(data.map(d => d['content_partner.rank_product_id'].value)));
-
-  const uniqueRankProductIds = Array.from(new Set(data.map(d => d[Object.keys(d)[5]].value)));
-
-  // Create the table header row
-  const headerRow = tableContainer.append('tr');
-
-  // Get the custom labels from the options
-  const statementMonthLabel = config.statementMonthLabel || 'Dimension';
-  const measureLabel1 = config.MeasureLabel || 'Measure';
-  const measureLabel2 = config.MeasureLabel2 || '';
-
-  // Add the statement month header
-  headerRow.append('th')
-    .text(statementMonthLabel)
-    .style('background-color', config.headerColor)
-    .style('color', config.headerFontColor)
-    .style('font-size', config.fontSize)
-    .style('font-family', config.fontFamily)
-    .style('padding', config.headerPadding);
-
-  // Add the image headers
-  uniqueRankProductIds.forEach(rankProductId => {
-    headerRow.append('th')
-      .style('background-color', config.headerColor)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .text(rankProductId);
-  });
-
-  // Iterate over each statement month
-  statementMonths.forEach(month => {
-    // Filter the data for the current statement month
-    // const monthData = data.filter(d => d['content_partner.statement_month'].value === month);
-    const monthData = data.filter(d => d[Object.keys(d)[1]].value === month);
-    // Create a table row for the current statement month
-    const assetRow = tableContainer.append('tr');
-    const row = tableContainer.append('tr')
-      .style('border-top', '1px solid #ccc');
-    const revenueRow = tableContainer.append('tr');
-    // Add the statement month cell
-    assetRow.append('td')
-      .text(measureLabel2)
-      .style('background-color', config.rowColor2)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
-    
-    row.append('td')
-      .text(month)
-      .style('background-color', config.headerColor)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
-    revenueRow.append('td')
-      .text(measureLabel1)
-      .style('background-color', config.rowColor1)
-      .style('color', config.headerFontColor)
-      .style('font-size', config.fontSize)
-      .style('font-family', config.fontFamily)
-      .style('padding', config.headerPadding)
-      .style('border-right', '1px solid #ccc');
-    
-
-    // Add the image cells for the current statement month
-    uniqueRankProductIds.forEach(rankProductId => {
-      const imageData = monthData.find(d => d[Object.keys(d)[5]].value === rankProductId);
-      const imageUrl = imageData ? imageData[Object.keys(imageData)[2]].value  : '';
-      const mediaType = imageData ? imageData[Object.keys(imageData)[3]].value : '';
-      const revenue = imageData ? formatNumericValue(imageData[Object.keys(imageData)[4]].value, config.numericFormat) : '';
-      const id = imageData ? imageData[Object.keys(imageData)[0]].value : '';
-      assetRow.append('td')
-        .style('background-color', config.rowColor2)
-        .style('color', config.fontColor)
-        .style('font-size', config.fontSize)
-        .style('font-family', config.fontFamily)
-        .style('padding', config.headerPadding)
-        .text(id);
-
-      const mediaCell = row.append('td').style('padding', '5px');
-      if (mediaType !== 'VIDEO') {
-        mediaCell.append('img')
-          .style('width', config.imageWidth)
-          .style('height', '90px')
-          .attr('src', imageUrl)
-          .attr('alt', 'Pulled');
-      } else if (mediaType === 'VIDEO') {
-        mediaCell.append('video')
-          .style('width', '100px')
-          .style('height', config.imageWidth)
-          .attr('src', imageUrl)
-          .attr('alt', 'Pulled');
-      }
-
-      revenueRow.append('td')
-        .style('background-color', config.rowColor1)
-        .style('color', config.fontColor)
-        .style('font-size', config.fontSize)
-        .style('font-family', config.fontFamily)
-        .style('padding', config.headerPadding)
-        .text(revenue);
-
-     
-    });
-  });
-
-  // Adjust the table cell borders
-  tableContainer.selectAll('td, th')
-    .style('border', '1px solid #ccc');
-}
-
-function formatNumericValue(value, format) {
-  // Check if a format is specified
-  if (format && format.length > 0) {
-    // Format the value using the specified format
-    return d3.format(format)(value);
-  }
-
-  // No format specified, return the value as is
-  return value;
-}
-
-const vis = {
-  id: 'image-table',
-  label: 'Image Table',
+looker.plugins.visualizations.add({
+  id: "baseball_card_carousel",
+  label: "Baseball Card Carousel with Controls",
   options: {
-    fontFamily: {
-      type: 'string',
-      label: 'Font Family',
-      default: 'Arial',
+    primaryColor: {
+      label: "Primary Team Color",
+      type: "string",
+      display: "color",
+      default: "#001F5C", // Default navy blue color
+      order: 1
     },
-    fontSize: {
-      type: 'string',
-      label: 'Font Size',
-      default: '12px',
+    secondaryColor: {
+      label: "Secondary Team Color",
+      type: "string",
+      display: "color",
+      default: "#ffffff", // Default white color
+      order: 2
     },
-    fontColor: {
-      type: 'string',
-      label: 'Font Color',
-      default: '#000',
+    tertiaryColor: {
+      label: "Tertiary Team Color",
+      type: "string",
+      display: "color",
+      default: "#C8102E", // Default red color
+      order: 3
     },
-    headerColor: {
-      type: 'string',
-      label: 'Header Color',
-      default: '#ccc',
-    },
-    headerFontColor: {
-      type: 'string',
-      label: 'Header Font Color',
-      default: '#000',
-    },
-    headerPadding: {
-      type: 'string',
-      label: 'Header Padding',
-      default: '5px',
-    },
-    rowColor1: {
-      type: 'string',
-      label: 'Row Color 1',
-      default: '#fff',
-    },
-    rowColor2: {
-      type: 'string',
-      label: 'Row Color 2',
-      default: '#fff',
-    },
-    imageWidth: {
-      type: 'string',
-      label: 'Image Width',
-      default: '90px',
-    },
-    imageHeight: {
-      type: 'string',
-      label: 'Image Height',
-      default: '90px',
-    },
-    cellPadding: {
-      type: 'string',
-      label: 'Cell Padding',
-      default: '5px',
-    },
-    statementMonthLabel: {
-      type: 'string',
-      label: 'Dimension',
-      default: '',
-    },
-    MeasureLabel: {
-      type: 'string',
-      label: 'Measure 1',
-      default: '',
-    },
-    MeasureLabel2: {
-      type: 'string',
-      label: 'Measure 2',
-      default: '',
-    },
-    numericFormat: {
-      type: 'string',
-      label: 'Numeric Format',
-      default: '',
-    },
-  },
-  create(element, config) {
-    element.innerHTML = '<div class="image-table"></div><div class="error-message" style="color: red; font-weight: bold;"></div>';
-    return {};
-  },
-  update(data, element, config, context) {
-    console.log(config)
-    const tableContainer = element.querySelector('.image-table');
-    const errorMessageElement = element.querySelector('.error-message');
-
-    try {
-      // Clear any previous error messages
-      errorMessageElement.textContent = '';
-
-      // Clear the table content
-      tableContainer.innerHTML = '';
-
-      // Get the revenue measure object based on position (index)
-      const revenueMeasure = config.query_fields.measures[0].label_short;
-
-      // Update the config with the revenue label as MeasureLabel
-      config.MeasureLabel = revenueMeasure ;
-
-      // Call the renderImageTable function with the correct arguments
-      renderImageTable(data, d3.select(tableContainer), config);
-    } catch (error) {
-      console.error('Error occurred during update:', error);
-      errorMessageElement.textContent = 'This chart requires dimensions. Non unique Dimension,Image Url dimension,measures(must contain a rank measure) follow this same order, id,date,url,media_type,dynamic_measure,rank';
+    measureTitle: {
+      label: "Measure Title",
+      type: "boolean",
+      default: false,
+      order: 4
     }
   },
-};
+  create(element, config) {
+    const container = document.createElement('div');
+    container.className = 'carousel-container';
+    container.innerHTML = `
+      <div class="carousel-wrapper" style="position: relative; display: flex; justify-content: center; align-items: center;">
+        <button class="carousel-prev" style="position: absolute; left: 10px; background-color: rgba(0, 0, 0, 0.3); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;">&#8249;</button>
+        <div class="carousel-cards" style="display: flex; justify-content: center; align-items: center; width: 100%;"></div>
+        <button class="carousel-next" style="position: absolute; right: 10px; background-color: rgba(0, 0, 0, 0.3); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;">&#8250;</button>
+      </div>
+      <div class="carousel-dots" style="display: flex; justify-content: center; align-items: center; padding-top: 10px;"></div>
+    `;
+    element.appendChild(container);
+  },
+  updateAsync(data, element, config, queryResponse, details, doneRendering) {
+    const cardContainer = element.querySelector('.carousel-cards');
+    const prevButton = element.querySelector('.carousel-prev');
+    const nextButton = element.querySelector('.carousel-next');
+    const dotsContainer = element.querySelector('.carousel-dots');
+    let currentIndex = 0;
 
-looker.plugins.visualizations.add(vis);
+    cardContainer.innerHTML = ""; // Clear the container
+    dotsContainer.innerHTML = ""; // Clear the dots container
+
+    // Combine dimensions and measures into one list to treat columns uniformly
+    const allFields = [...queryResponse.fields.dimensions, ...queryResponse.fields.measures];
+
+    if (allFields.length < 3) {
+      const errorMessage = `
+        <div style="color: red; font-weight: bold; padding: 10px;">
+          <p>Error: This visualization requires at least 3 columns to work correctly.</p>
+        </div>
+      `;
+      cardContainer.innerHTML = errorMessage;
+      doneRendering();
+      return;
+    }
+
+    // Player name is the first column, Player logo is the second column, Player image is the third column
+    const playerNameField = allFields[0].name; // First column for player name
+    const playerLogoField = allFields[1].name; // Second column for player logo
+    const playerImageField = allFields[2].name; // Third column for player image (could be dimension or measure)
+
+    // Colors from the configuration options
+    const primaryColor = config.primaryColor || '#001F5C';
+    const secondaryColor = config.secondaryColor || '#ffffff';
+    const tertiaryColor = config.tertiaryColor || '#C8102E';
+
+    // Create cards array to hold all cards
+    const cards = data.map(row => {
+      const playerName = LookerCharts.Utils.textForCell(row[playerNameField]).replace(/\s+/g, '-').replace(/\./g, '');
+      const playerNameHtml = LookerCharts.Utils.htmlForCell(row[playerNameField]);
+      const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoField]);
+      const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageField]);
+
+      return `
+        <div class="card-${playerName}" style="display:flex; flex-direction:column; align-items:center;">
+          <style>
+            .card-${playerName} {
+              width: 243px;
+              height: 350px;
+              border: 8px solid ${primaryColor};
+              border-radius: 10px;
+              background-color: ${secondaryColor};
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              text-align: center;
+              overflow: hidden;
+              position: relative;
+              display: flex;
+              flex-direction: column;
+            }
+            .card-${playerName} .team_logo {
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              background-color: ${primaryColor};
+              position: absolute;
+              top: 10px;
+              left: 10px;
+              border: 3px solid ${secondaryColor};
+              object-fit: contain;
+            }
+            .card-${playerName} .player {
+              width: 100%;
+              height: 70%;
+              object-fit: cover;
+            }
+            .card-${playerName} figcaption {
+              background-color: ${primaryColor};
+              color: ${secondaryColor};
+              font-family: 'Roboto', sans-serif;
+              font-weight: bold;
+              padding: 10px;
+              text-transform: capitalize;
+              border-top: 2px solid ${tertiaryColor};
+            }
+          </style>
+          <img class="team_logo" src="${playerLogoUrl}" alt="Team Logo" />
+          <img class="player" src="${playerImgUrl}" alt="${playerNameHtml}" />
+          <figcaption>${playerNameHtml}</figcaption>
+        </div>
+      `;
+    });
+
+    // Create dot indicators based on the number of cards
+    for (let i = 0; i < cards.length; i++) {
+      const dot = document.createElement('span');
+      dot.style.cssText = `height: 12px; width: 12px; margin: 0 5px; background-color: ${i === currentIndex ? '#FF5733' : '#C0C0C0'}; border-radius: 50%; display: inline-block; cursor: pointer;`;
+      dotsContainer.appendChild(dot);
+      dot.addEventListener('click', () => showCard(i));
+    }
+
+    // Show the card at the given index
+    function showCard(index) {
+      cardContainer.innerHTML = cards[index]; // Insert the new card into the container
+      currentIndex = index;
+
+      // Update the dot indicators to reflect the current card
+      const dots = dotsContainer.children;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].style.backgroundColor = i === currentIndex ? '#FF5733' : '#C0C0C0';
+      }
+    }
+
+    // Show the first card initially
+    showCard(0);
+
+    // Handle next and previous clicks
+    prevButton.onclick = () => {
+      const newIndex = (currentIndex - 1 + cards.length) % cards.length; // Wrap backward
+      showCard(newIndex);
+    };
+
+    nextButton.onclick = () => {
+      const newIndex = (currentIndex + 1) % cards.length; // Wrap forward
+      showCard(newIndex);
+    };
+
+    doneRendering(); // Signal rendering completion
+  }
+});
