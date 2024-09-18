@@ -1,6 +1,6 @@
 looker.plugins.visualizations.add({
-  id: "baseball_card_carousel",
-  label: "Baseball Card Carousel",
+  id: "single_baseball_card",
+  label: "Single Baseball Card",
   options: {
     primaryColor: {
       label: "Primary Team Color",
@@ -31,23 +31,16 @@ looker.plugins.visualizations.add({
     }
   },
   create(element, config) {
+    // Create a container element for the card
     const container = document.createElement('div');
-    container.className = 'carousel-container';
-    container.innerHTML = `
-      <button class="carousel-prev" style="position:absolute; left: 0;">Previous</button>
-      <div class="carousel-cards" style="display:flex; justify-content:center; align-items:center; width:100%;"></div>
-      <button class="carousel-next" style="position:absolute; right: 0;">Next</button>
-    `;
+    container.className = 'card-container';
     element.appendChild(container);
   },
   updateAsync(data, element, config, queryResponse, details, doneRendering) {
-    const cardContainer = element.querySelector('.carousel-cards');
-    const prevButton = element.querySelector('.carousel-prev');
-    const nextButton = element.querySelector('.carousel-next');
-    let currentIndex = 0;
-
+    const cardContainer = element.querySelector('.card-container');
     cardContainer.innerHTML = ""; // Clear the container
 
+    // Check for the minimum number of dimensions and measures
     if (queryResponse.fields.dimensions.length < 3 || queryResponse.fields.measures.length < 1) {
       const errorMessage = `
         <div style="color: red; font-weight: bold; padding: 10px;">
@@ -70,82 +63,88 @@ looker.plugins.visualizations.add({
     const secondaryColor = config.secondaryColor || '#ffffff';
     const tertiaryColor = config.tertiaryColor || '#C8102E';
 
-    // Create cards array to hold all cards
-    const cards = data.map(row => {
-      const playerName = LookerCharts.Utils.textForCell(row[playerNameDimension]).replace(/\s+/g, '-').replace(/\./g, '');
-      const playerNameHtml = LookerCharts.Utils.htmlForCell(row[playerNameDimension]);
-      const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoDimension]);
-      const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageDimension]);
+    // Assuming we just want to display the first card from the dataset
+    const row = data[0];
+
+    const playerName = LookerCharts.Utils.textForCell(row[playerNameDimension]).replace(/\s+/g, '-').replace(/\./g, '');
+    const playerNameHtml = LookerCharts.Utils.htmlForCell(row[playerNameDimension]);
+    const playerLogoUrl = LookerCharts.Utils.textForCell(row[playerLogoDimension]);
+    const playerImgUrl = LookerCharts.Utils.textForCell(row[playerImageDimension]);
+    const measureValue = LookerCharts.Utils.textForCell(row[measureDimension]);
+
+    // Build the single card HTML
+    const cardHTML = `
+      <style>
+        .card-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+        }
+
+        .card-${playerName} {
+          width: 243px;
+          height: 350px;
+          border: 8px solid ${primaryColor};
+          border-radius: 10px;
+          background-color: ${secondaryColor};
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+          overflow: hidden;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .card-${playerName} .team_logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background-color: ${primaryColor};
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          border: 3px solid ${secondaryColor};
+          object-fit: contain;
+        }
+
+        .card-${playerName} .player {
+          width: 100%;
+          height: 70%;
+          object-fit: cover;
+        }
+
+        .card-${playerName} figcaption {
+          background-color: ${primaryColor};
+          color: ${secondaryColor};
+          font-family: 'Roboto', sans-serif;
+          font-weight: bold;
+          padding: 10px;
+          text-transform: capitalize;
+          border-top: 2px solid ${tertiaryColor};
+        }
+      </style>
+
+      <div class="card-${playerName}">
+        <img class="team_logo" src="${playerLogoUrl}" alt="Team Logo" />
+        <img class="player" src="${playerImgUrl}" alt="${playerNameHtml}" />
+        <figcaption>${playerNameHtml}</figcaption>
+      </div>
+    `;
+
+    // Insert the card HTML into the container
+    cardContainer.innerHTML = cardHTML;
+
+    if (config.measureTitle) {
+      const measureName = queryResponse.fields.measures[0].label;
       const measureValue = LookerCharts.Utils.textForCell(row[measureDimension]);
 
-      return `
-        <div class="card-${playerName}" style="display:none; flex-direction:column; align-items:center;">
-          <style>
-            .card-${playerName} {
-              width: 243px;
-              height: 350px;
-              border: 8px solid ${primaryColor};
-              border-radius: 10px;
-              background-color: ${secondaryColor};
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-              text-align: center;
-              overflow: hidden;
-              position: relative;
-              display: flex;
-              flex-direction: column;
-            }
-            .card-${playerName} .team_logo {
-              width: 60px;
-              height: 60px;
-              border-radius: 50%;
-              background-color: ${primaryColor};
-              position: absolute;
-              top: 10px;
-              left: 10px;
-              border: 3px solid ${secondaryColor};
-              object-fit: contain;
-            }
-            .card-${playerName} .player {
-              width: 100%;
-              height: 70%;
-              object-fit: cover;
-            }
-            .card-${playerName} figcaption {
-              background-color: ${primaryColor};
-              color: ${secondaryColor};
-              font-family: 'Roboto', sans-serif;
-              font-weight: bold;
-              padding: 10px;
-              text-transform: capitalize;
-              border-top: 2px solid ${tertiaryColor};
-            }
-          </style>
-          <img class="team_logo" src="${playerLogoUrl}" alt="Team Logo" />
-          <img class="player" src="${playerImgUrl}" alt="${playerNameHtml}" />
-          <figcaption>${playerNameHtml}</figcaption>
-        </div>
-      `;
-    });
-
-    // Show the first card by default
-    function showCard(index) {
-      cardContainer.innerHTML = cards[index]; // Clear the container and insert the new card
-      currentIndex = index;
+      const titles = document.getElementsByClassName("looker-vis-context-title-link");
+      if (titles.length > 0) {
+        titles[0].innerText = `${measureName}: ${measureValue}`;
+      }
     }
-
-    // Show the first card initially
-    showCard(0);
-
-    // Handle next and previous clicks
-    prevButton.onclick = () => {
-      const newIndex = (currentIndex - 1 + cards.length) % cards.length; // Handle wrapping backward
-      showCard(newIndex);
-    };
-
-    nextButton.onclick = () => {
-      const newIndex = (currentIndex + 1) % cards.length; // Handle wrapping forward
-      showCard(newIndex);
-    };
 
     doneRendering(); // Signal rendering completion
   }
