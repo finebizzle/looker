@@ -108,7 +108,7 @@ looker.plugins.visualizations.add({
           .card-${playerName} .player {
             position: relative;
             width: 100%;
-            height: 70%;
+            height: 85%;
             object-fit: cover;
           }
 
