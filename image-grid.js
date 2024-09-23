@@ -1,10 +1,10 @@
+// Ensure D3.js is available before running this script
 function renderImageGrid(data, container) {
-  // Define the dimensions and properties of the image grid
-  const imageWidth = 100; // Adjust size to fit 500 images in a grid
+  const imageWidth = 100;
   const imageHeight = 100;
-  const imagesPerRow = 20; // 20 images per row to fit a total of 500
+  const imagesPerRow = 20;
   const spacing = 10;
-  const maxImages = 500; // Limit to display 500 images
+  const maxImages = 500;
 
   // Take the first `maxImages` elements from the data array
   const truncatedData = data.slice(0, maxImages);
@@ -24,6 +24,7 @@ function renderImageGrid(data, container) {
     .append('div')
     .style('width', `${imageWidth}px`)
     .style('height', `${imageHeight}px`)
+    .style('position', 'relative') // Add relative position to parent container
     .style('background-color', '#eee')
     .style('background-size', 'cover')
     .style('background-position', 'center')
@@ -51,6 +52,12 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
+    // Check if data is available
+    if (!data || data.length === 0) {
+      element.innerHTML = '<div>No data available</div>';
+      return;
+    }
+
     const container = d3.select(element).select('.image-grid');
     container.html(''); // Clear the grid before rendering
 
