@@ -22,14 +22,11 @@ const vis = {
 // Function to render the image grid using Vanilla JavaScript
 function renderImageGrid(data, container) {
   // Define the dimensions and properties of the image grid
-  const imageWidth = 100;
-  const imageHeight = 100;
-  const imagesPerRow = 20; // 20 images per row to fit 500 total images
-  const spacing = 10;
+  const imageWidth = 150;
+  const imageHeight = 150;
+  const imagesPerRow = 5; // Adjust to fit the layout better
+  const spacing = 15;
   const maxImages = 500; // Limit to display 500 images
-
-  // Slice the data to show only the first 500 images
-  const truncatedData = data.slice(0, maxImages);
 
   // Set the grid container styles
   container.style.display = 'grid';
@@ -38,8 +35,16 @@ function renderImageGrid(data, container) {
   container.style.width = 'fit-content';
   container.style.margin = 'auto';
 
+  // Process the data to only display the first 500 images
+  const truncatedData = data.slice(0, maxImages);
+
   // Loop through each data item to create the image divs
-  truncatedData.forEach(item => {
+  truncatedData.forEach(row => {
+    // Assuming the first dimension is the image URL, second dimension is the title, and the first measure is the value
+    const imageUrl = row['dimensions'][0]; // First dimension as image URL
+    const title = row['dimensions'][1];    // Second dimension as the title
+    const measure = row['measures'][0];    // First measure as the value to display under the image
+
     // Create the div to hold the image
     const imageDiv = document.createElement('div');
     imageDiv.style.width = `${imageWidth}px`;
@@ -48,25 +53,33 @@ function renderImageGrid(data, container) {
     imageDiv.style.backgroundColor = '#eee';
     imageDiv.style.backgroundSize = 'cover';
     imageDiv.style.backgroundPosition = 'center';
-    imageDiv.style.backgroundImage = `url(${item.image_url})`;
+    imageDiv.style.backgroundImage = `url(${imageUrl})`;
 
-    // Create the label div for the image
-    const labelDiv = document.createElement('div');
-    labelDiv.style.position = 'absolute';
-    labelDiv.style.bottom = '0';
-    labelDiv.style.left = '0';
-    labelDiv.style.right = '0';
-    labelDiv.style.padding = '5px';
-    labelDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Semi-transparent background for the label
-    labelDiv.style.color = '#fff'; // White text
-    labelDiv.style.textAlign = 'center'; // Center the label text
-    labelDiv.textContent = item.master_id; // Use master_id as the label text
+    // Create the title div for the image (the second dimension)
+    const titleDiv = document.createElement('div');
+    titleDiv.style.position = 'absolute';
+    titleDiv.style.top = '0';
+    titleDiv.style.left = '0';
+    titleDiv.style.right = '0';
+    titleDiv.style.padding = '5px';
+    titleDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Semi-transparent background for the title
+    titleDiv.style.color = '#fff'; // White text
+    titleDiv.style.textAlign = 'center'; // Center the title text
+    titleDiv.textContent = title; // Use the second dimension as the title
 
-    // Append the label div to the image div
-    imageDiv.appendChild(labelDiv);
+    // Append the title div to the image div
+    imageDiv.appendChild(titleDiv);
 
-    // Append the image div to the container
+    // Create the measure div to show the measure value under the image
+    const measureDiv = document.createElement('div');
+    measureDiv.style.textAlign = 'center';
+    measureDiv.style.marginTop = '5px';
+    measureDiv.style.color = '#333'; // Style for the measure text
+    measureDiv.textContent = measure; // Use the first measure as the value under the image
+
+    // Append the image div and measure div to the container
     container.appendChild(imageDiv);
+    container.appendChild(measureDiv); // Add measure under the image
   });
 }
 
