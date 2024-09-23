@@ -1,5 +1,5 @@
 function renderCustomImageGrid(data, container, config) {
-  const maxImages = config.maxImages || 500; // Maximum number of images to display
+  const maxImages = config.maxImages || 20; // Maximum number of images to display
 
   // Filter and truncate data to include only valid images
   const truncatedData = data
