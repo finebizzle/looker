@@ -21,15 +21,17 @@ function renderCustomImageGrid(data, container, config) {
       gap: 10px; /* Gap between images */
     }
     .grid-item {
-      position: relative;
-      overflow: hidden; /* Hide any overflow if needed */
-    }
-    .grid-item img {
-      width: 100%; /* Image should fill the container horizontally */
-      height: 100%; /* Image should fill the container vertically */
-      object-fit: cover; /* Cover the container without distortion */
-      object-position: top; 
-    }
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;     /* Center vertically */
+    width: 100%;   /* Set container width */
+    height: auto;  /* Let height adjust based on the content */
+}
+.grid-item img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;  /* Maintain aspect ratio and avoid cropping */
+}
   `;
   document.head.appendChild(style);
 
