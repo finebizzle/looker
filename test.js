@@ -1,8 +1,8 @@
 function renderImageGrid(data, container) {
   // Define the dimensions and properties of the image grid
-  const imageWidth = 200;
-  const imageHeight = 200;
-  const imagesPerRow = 4;
+  const imageWidth = 100;
+  const imageHeight = 100;
+  const imagesPerRow = 10;
   const spacing = 10;
 
   // Calculate the total number of rows based on the data length and images per row
@@ -40,8 +40,6 @@ function renderImageGrid(data, container) {
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
   gridContainer.style('height', `${gridHeight}px`);
-
-  
 }
 
 const vis = {
@@ -53,20 +51,16 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
-    const dataContainer = document.createElement('div');
-    dataContainer.style.marginTop = '10px';
 
-    const dataTitle = document.createElement('h3');
-    dataTitle.textContent = 'Data:';
-    dataContainer.appendChild(dataTitle);
+    // Assign dimensions to properties
+    const updatedData = data.map(d => ({
+      image_url: d[Object.keys(d)[0]].value,
+      master_id: d[Object.keys(d)[1]].value,
+    }));
 
-    const dataContent = document.createElement('pre');
-    dataContent.textContent = JSON.stringify(data, null, 2);
-    dataContainer.appendChild(dataContent);
-
-    element.appendChild(dataContainer);
-
-    
+    // Render the image grid
+    const container = d3.select(element).select('.image-grid');
+    renderImageGrid(updatedData, container);
   },
 };
 
