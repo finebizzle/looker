@@ -18,11 +18,8 @@ function renderCustomImageGrid(data, container, config) {
       display: grid;
       grid-template-columns: repeat(4, 1fr); /* Four columns in the grid */
       grid-auto-rows: 100px; /* Base row height */
-      gap: 10px; /* Gap between images */
-      border: 2px solid black; /* Add black border around the container */
+      gap: 5px; /* Gap between images */
       padding: 10px; /* Optional padding inside the grid container */
-      width: 50%; /* Reduce the width of the grid container by 50% */
-      margin: 0 auto; /* Center the grid container horizontally */
     }
     .grid-item {
       position: relative;
@@ -30,7 +27,7 @@ function renderCustomImageGrid(data, container, config) {
       display: flex;
       justify-content: center; /* Horizontally center image */
       align-items: center; /* Vertically center image */
-      border: 2px solid black; /* Black border around each image container */
+      border: 0.5px solid black; /* Black border around each image container */
     }
     .grid-item img {
       max-width: 100%; /* Ensure image doesn't exceed container width */
