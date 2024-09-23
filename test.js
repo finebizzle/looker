@@ -1,4 +1,7 @@
 function renderImageGrid(data, container) {
+  // Clear any existing content
+  container.innerHTML = '';
+
   // Define the dimensions and properties of the image grid
   const imageWidth = 200;
   const imageHeight = 200;
@@ -8,38 +11,44 @@ function renderImageGrid(data, container) {
   // Calculate the total number of rows based on the data length and images per row
   const numRows = Math.ceil(data.length / imagesPerRow);
 
-  // Create a container for the image grid
-  const gridContainer = container.append('div')
-    .style('display', 'flex')
-    .style('flex-wrap', 'wrap');
+  // Set up the grid container styles
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = `repeat(${imagesPerRow}, ${imageWidth}px)`;
+  container.style.gridGap = `${spacing}px`;
 
   // Add image elements to the grid container
-  const images = gridContainer.selectAll('.image')
-    .data(data)
-    .enter()
-    .append('div')
-    .style('width', `${imageWidth}px`)
-    .style('height', `${imageHeight}px`)
-    .style('margin', `${spacing}px`)
-    .style('background-color', '#eee')
-    .style('background-size', 'cover')
-    .style('background-position', 'center')
-    .style('background-image', d => `url(${d.image_url})`);
+  data.forEach((item) => {
+    // Create the div for each image
+    const imageDiv = document.createElement('div');
+    imageDiv.style.width = `${imageWidth}px`;
+    imageDiv.style.height = `${imageHeight}px`;
+    imageDiv.style.backgroundColor = '#eee';
+    imageDiv.style.backgroundSize = 'cover';
+    imageDiv.style.backgroundPosition = 'center';
+    imageDiv.style.backgroundImage = `url(${item.image_url})`;
 
-  // Add image names as labels at the bottom of each cell
-  images.append('div')
-    .style('bottom', '0')
-    .style('left', '0')
-    .style('right', '0')
-    .style('padding', '5px')
-    .style('background-color', 'rgba(0, 0, 0, 0.7)')
-    .style('color', '#fff')
-    .style('text-align', 'center')
-    .text(d => d.master_id);
+    // Create a label div for the image name
+    const labelDiv = document.createElement('div');
+    labelDiv.style.position = 'relative';
+    labelDiv.style.bottom = '0';
+    labelDiv.style.left = '0';
+    labelDiv.style.right = '0';
+    labelDiv.style.padding = '5px';
+    labelDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    labelDiv.style.color = '#fff';
+    labelDiv.style.textAlign = 'center';
+    labelDiv.innerText = item.master_id;
+
+    // Append the label to the image div
+    imageDiv.appendChild(labelDiv);
+
+    // Append the image div to the container
+    container.appendChild(imageDiv);
+  });
 
   // Adjust the grid container height based on the number of rows
   const gridHeight = numRows * (imageHeight + 2 * spacing);
-  gridContainer.style('height', `${gridHeight}px`);
+  container.style.height = `${gridHeight}px`;
 }
 
 const vis = {
@@ -51,7 +60,7 @@ const vis = {
     return {};
   },
   update(data, element, config, context) {
-    const container = d3.select(element).select('.image-grid');
+    const container = element.querySelector('.image-grid');
     renderImageGrid(data, container);
   },
 };
