@@ -19,14 +19,20 @@ function renderCustomImageGrid(data, container, config) {
       grid-template-columns: repeat(4, 1fr); /* Four columns in the grid */
       grid-auto-rows: 100px; /* Base row height */
       gap: 10px; /* Gap between images */
+      border: 2px solid black; /* Add black border around the container */
+      padding: 10px; /* Optional padding inside the grid container */
     }
     .grid-item {
       position: relative;
       overflow: hidden; /* Hide any overflow if needed */
+      display: flex;
+      justify-content: center; /* Horizontally center image */
+      align-items: center; /* Vertically center image */
+      border: 2px solid black; /* Black border around each image container */
     }
     .grid-item img {
-      width: 100%; /* Image should fill the container horizontally */
-      height: 100%; /* Image should fill the container vertically */
+      max-width: 100%; /* Ensure image doesn't exceed container width */
+      max-height: 100%; /* Ensure image doesn't exceed container height */
       object-fit: contain; /* Contain the image without stretching */
     }
   `;
