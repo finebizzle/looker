@@ -2,9 +2,20 @@ function renderImageGrid(data, container, queryResponse) {
   // Clear any existing content
   container.innerHTML = '';
 
-  // Get dimension and measure names from queryResponse
-  const dimension = queryResponse.fields.dimension_like[0].name;  // First dimension is used for image URL or ID
-  const measure = queryResponse.fields.measure_like[0].name;  // First measure is used for tooltip
+  // Check if queryResponse has dimensions and measures, and log the structure for debugging
+  console.log(queryResponse);
+  const dimensions = queryResponse.fields?.dimension_like || [];
+  const measures = queryResponse.fields?.measure_like || [];
+
+  // Safety check: Ensure there is at least one dimension and one measure
+  if (dimensions.length === 0 || measures.length === 0) {
+    console.error('No dimensions or measures found in the queryResponse');
+    container.innerHTML = '<p>No data available to render</p>';
+    return;
+  }
+
+  const dimension = dimensions[0].name;  // First dimension for image URL or ID
+  const measure = measures[0].name;  // First measure for tooltip
 
   // Define the dimensions and properties of the image grid
   const imageWidth = 200;
@@ -23,9 +34,9 @@ function renderImageGrid(data, container, queryResponse) {
   // Add image elements to the grid container
   data.forEach((item) => {
     // Dynamically access the dimension and measure from the data
-    const imageUrl = item[dimension].value || 'https://via.placeholder.com/200';  // Use placeholder if no image URL
-    const masterId = item[dimension].value || 'Unknown';
-    const tooltip = item[measure].value || 'No data';  // Tooltip showing the measure value
+    const imageUrl = item[dimension]?.value || 'https://via.placeholder.com/200';  // Fallback to placeholder
+    const masterId = item[dimension]?.value || 'Unknown';
+    const tooltip = item[measure]?.value || 'No data';  // Tooltip showing the measure value
 
     // Create the div for each image
     const imageDiv = document.createElement('div');
@@ -70,6 +81,9 @@ const vis = {
     return {};
   },
   update(data, element, config, context, queryResponse) {
+    // Log queryResponse to debug its structure
+    console.log('queryResponse:', queryResponse);
+
     const container = element.querySelector('.image-grid');
     renderImageGrid(data, container, queryResponse);
   },
