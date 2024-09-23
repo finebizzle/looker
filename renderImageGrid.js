@@ -21,6 +21,8 @@ function renderCustomImageGrid(data, container, config) {
       gap: 10px; /* Gap between images */
       border: 2px solid black; /* Add black border around the container */
       padding: 10px; /* Optional padding inside the grid container */
+      width: 50%; /* Reduce the width of the grid container by 50% */
+      margin: 0 auto; /* Center the grid container horizontally */
     }
     .grid-item {
       position: relative;
