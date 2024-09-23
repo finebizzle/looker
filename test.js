@@ -1,27 +1,9 @@
-function renderImageGrid(data, container, queryResponse) {
+function renderImageGrid(data, container) {
   // Clear any existing content
   container.innerHTML = '';
 
-  // Log data and queryResponse to inspect their structure
+  // Log data to inspect its structure
   console.log('Data:', data);
-  console.log('Query Response:', queryResponse);
-
-  // Check if queryResponse has fields and dimensions/measures, and log the structure for debugging
-  const fields = queryResponse.fields || {};
-  console.log('Fields:', fields);
-
-  const dimensions = fields.dimension_like || [];
-  const measures = fields.measure_like || [];
-
-  // Safety check: Ensure there is at least one dimension and one measure
-  if (dimensions.length === 0 || measures.length === 0) {
-    console.error('No dimensions or measures found in the queryResponse');
-    container.innerHTML = '<p>No data available to render</p>';
-    return;
-  }
-
-  const dimension = dimensions[0].name;  // First dimension for image URL or ID
-  const measure = measures[0].name;  // First measure for tooltip
 
   // Define the dimensions and properties of the image grid
   const imageWidth = 200;
@@ -38,11 +20,11 @@ function renderImageGrid(data, container, queryResponse) {
   container.style.gridGap = `${spacing}px`;
 
   // Add image elements to the grid container
-  data.forEach((item) => {
-    // Dynamically access the dimension and measure from the data
-    const imageUrl = item[dimension]?.value || 'https://via.placeholder.com/200';  // Fallback to placeholder
-    const masterId = item[dimension]?.value || 'Unknown';
-    const tooltip = item[measure]?.value || 'No data';  // Tooltip showing the measure value
+  data.forEach((item, index) => {
+    // Access fields by position in the `item` object (based on the data structure)
+    const imageUrl = item[Object.keys(item)[0]]?.value || 'https://via.placeholder.com/200';  // Assume first field is the image URL
+    const masterId = item[Object.keys(item)[1]]?.value || 'Unknown';  // Assume second field is the ID
+    const tooltip = item[Object.keys(item)[2]]?.value || 'No data';  // Assume third field is the tooltip/measure
 
     // Create the div for each image
     const imageDiv = document.createElement('div');
@@ -86,13 +68,12 @@ const vis = {
     element.innerHTML = '<div class="image-grid"></div>';
     return {};
   },
-  update(data, element, config, context, queryResponse) {
-    // Log data and queryResponse to debug their structure
+  update(data, element, config, context) {
+    // Log data to debug its structure
     console.log('Data:', data);
-    console.log('QueryResponse:', queryResponse);
 
     const container = element.querySelector('.image-grid');
-    renderImageGrid(data, container, queryResponse);
+    renderImageGrid(data, container);
   },
 };
 
