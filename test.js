@@ -2,10 +2,15 @@ function renderImageGrid(data, container, queryResponse) {
   // Clear any existing content
   container.innerHTML = '';
 
-  // Check if queryResponse has dimensions and measures, and log the structure for debugging
-  console.log(queryResponse);
-  const dimensions = queryResponse.fields?.dimension_like || [];
-  const measures = queryResponse.fields?.measure_like || [];
+  // Log the entire queryResponse object for further inspection
+  console.log('Full queryResponse:', queryResponse);
+
+  // Check if queryResponse has fields and dimensions/measures, and log the structure for debugging
+  const fields = queryResponse.fields || {};
+  console.log('Fields:', fields);
+
+  const dimensions = fields.dimension_like || [];
+  const measures = fields.measure_like || [];
 
   // Safety check: Ensure there is at least one dimension and one measure
   if (dimensions.length === 0 || measures.length === 0) {
