@@ -17,21 +17,15 @@ function renderCustomImageGrid(data, container, config) {
     .grid-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr); /* Four columns in the grid */
-      grid-auto-rows: 100px; /* Base row height */
       gap: 10px; /* Gap between images */
     }
     .grid-item {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center;     /* Center vertically */
-    width: 100%;   /* Set container width */
-    height: auto;  /* Let height adjust based on the content */
-}
-.grid-item img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;  /* Maintain aspect ratio and avoid cropping */
-}
+      position: relative;
+      overflow: hidden; /* Hide any overflow if needed */
+    }
+    .grid-item img {
+      object-fit: contain; /* Maintain aspect ratio */
+    }
   `;
   document.head.appendChild(style);
 
@@ -59,9 +53,27 @@ function renderCustomImageGrid(data, container, config) {
       .style('grid-column', `span ${gridSpan.colSpan}`)
       .style('grid-row', `span ${gridSpan.rowSpan}`);
 
-    imageContainer.append('img')
+    const imgElement = imageContainer.append('img')
       .attr('src', imageURL)
-      .attr('alt', imageAlt);
+      .attr('alt', imageAlt)
+      .style('visibility', 'hidden'); // Hide image until size is calculated
+
+    imgElement.node().onload = function() {
+      const naturalWidth = this.naturalWidth;
+      const naturalHeight = this.naturalHeight;
+      const aspectRatio = naturalWidth / naturalHeight;
+
+      // Set the container's size based on the image's natural dimensions
+      imageContainer
+        .style('width', `${naturalWidth}px`)
+        .style('height', `${naturalHeight}px`);
+
+      // Now make the image visible after setting its container size
+      d3.select(this)
+        .style('visibility', 'visible')
+        .style('width', '100%') // Ensure it still scales properly within the container
+        .style('height', 'auto'); // Maintain aspect ratio
+    };
   });
 }
 
