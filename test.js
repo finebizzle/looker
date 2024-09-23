@@ -2,8 +2,9 @@ function renderImageGrid(data, container, queryResponse) {
   // Clear any existing content
   container.innerHTML = '';
 
-  // Log the entire queryResponse object for further inspection
-  console.log('Full queryResponse:', queryResponse);
+  // Log data and queryResponse to inspect their structure
+  console.log('Data:', data);
+  console.log('Query Response:', queryResponse);
 
   // Check if queryResponse has fields and dimensions/measures, and log the structure for debugging
   const fields = queryResponse.fields || {};
@@ -86,8 +87,9 @@ const vis = {
     return {};
   },
   update(data, element, config, context, queryResponse) {
-    // Log queryResponse to debug its structure
-    console.log('queryResponse:', queryResponse);
+    // Log data and queryResponse to debug their structure
+    console.log('Data:', data);
+    console.log('QueryResponse:', queryResponse);
 
     const container = element.querySelector('.image-grid');
     renderImageGrid(data, container, queryResponse);
