@@ -40,10 +40,22 @@ function renderImageGrid(data, container) {
 
   // Loop through each data item to create the image divs
   truncatedData.forEach(row => {
-    // Assuming the first dimension is the image URL, second dimension is the title, and the first measure is the value
-    const imageUrl = row['dimensions'][0]; // First dimension as image URL
-    const title = row['dimensions'][1];    // Second dimension as the title
-    const measure = row['measures'][0];    // First measure as the value to display under the image
+    // Ensure dimensions and measures are defined before accessing them
+    const dimensions = row['dimensions'] || [];
+    const measures = row['measures'] || [];
+
+    // Check if the dimensions array has the required values (image URL and title)
+    const imageUrl = dimensions[0] || ''; // Default to an empty string if undefined
+    const title = dimensions[1] || 'Untitled'; // Default to 'Untitled' if undefined
+
+    // Check if the measures array has the required value
+    const measure = measures[0] !== undefined ? measures[0] : 'No Data'; // Default to 'No Data' if undefined
+
+    // Skip this row if the image URL is missing
+    if (!imageUrl) {
+      console.warn('Skipping row due to missing image URL');
+      return;
+    }
 
     // Create the div to hold the image
     const imageDiv = document.createElement('div');
