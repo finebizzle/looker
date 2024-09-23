@@ -43,8 +43,8 @@ function renderImageGrid(data, container) {
 }
 
 const vis = {
-  id: 'image-grid',
-  label: 'Image Grid',
+  id: 'ImageDisplayGrid',
+  label: 'DisplayGrid',
   options: {},
   create(element, config) {
     element.innerHTML = '<div class="image-grid"></div>';
