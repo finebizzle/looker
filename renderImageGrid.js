@@ -1,5 +1,5 @@
 function renderCustomImageGrid(data, container, config) {
-  const maxImages = config.maxImages || 20; // Maximum number of images to display
+  const maxImages = config.maxImages || 500; // Maximum number of images to display
 
   // Filter and truncate data to include only valid images
   const truncatedData = data
@@ -17,6 +17,7 @@ function renderCustomImageGrid(data, container, config) {
     .grid-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr); /* Four columns in the grid */
+      grid-auto-rows: 100px; /* Base row height */
       gap: 10px; /* Gap between images */
     }
     .grid-item {
@@ -24,7 +25,9 @@ function renderCustomImageGrid(data, container, config) {
       overflow: hidden; /* Hide any overflow if needed */
     }
     .grid-item img {
-      object-fit: contain; /* Maintain aspect ratio */
+      width: 100%; /* Image should fill the container horizontally */
+      height: 100%; /* Image should fill the container vertically */
+      object-fit: contain; /* Contain the image without stretching */
     }
   `;
   document.head.appendChild(style);
@@ -53,27 +56,9 @@ function renderCustomImageGrid(data, container, config) {
       .style('grid-column', `span ${gridSpan.colSpan}`)
       .style('grid-row', `span ${gridSpan.rowSpan}`);
 
-    const imgElement = imageContainer.append('img')
+    imageContainer.append('img')
       .attr('src', imageURL)
-      .attr('alt', imageAlt)
-      .style('visibility', 'hidden'); // Hide image until size is calculated
-
-    imgElement.node().onload = function() {
-      const naturalWidth = this.naturalWidth;
-      const naturalHeight = this.naturalHeight;
-      const aspectRatio = naturalWidth / naturalHeight;
-
-      // Set the container's size based on the image's natural dimensions
-      imageContainer
-        .style('width', `${naturalWidth}px`)
-        .style('height', `${naturalHeight}px`);
-
-      // Now make the image visible after setting its container size
-      d3.select(this)
-        .style('visibility', 'visible')
-        .style('width', '100%') // Ensure it still scales properly within the container
-        .style('height', 'auto'); // Maintain aspect ratio
-    };
+      .attr('alt', imageAlt);
   });
 }
 
