@@ -28,6 +28,7 @@ function renderCustomImageGrid(data, container, config) {
       width: 100%; /* Image should fill the container horizontally */
       height: 100%; /* Image should fill the container vertically */
       object-fit: cover; /* Cover the container without distortion */
+      object-position: top; 
     }
   `;
   document.head.appendChild(style);
