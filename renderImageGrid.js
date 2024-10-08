@@ -27,7 +27,7 @@ function renderCustomImageGrid(data, container, config) {
       display: flex;
       justify-content: center; /* Horizontally center image */
       align-items: center; /* Vertically center image */
-      border: 8px solid #001F5C;
+      border: 0.5px solid #001F5C;
       border-radius: 10px;
     }
     .grid-item img {
